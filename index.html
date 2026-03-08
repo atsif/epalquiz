@@ -3,916 +3,2416 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quiz – Τεχνικός Ηλεκτρολογικών Συστημάτων</title>
+<title>Quiz - Τεχνικός Ηλεκτρολογικών Συστημάτων</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
+  :root {
+    --bg: #0d0d0d;
+    --surface: #24f28bb5;  
+    --card: #1e1e1e;
+    --border: #2a2a2a;
+    --accent: #f5c542;
+    --accent2: #ff6b35;
+    --green: #4ade80;
+    --red: #f87171;
+    --text: #f0f0f0;
+    --muted: #888;
+    --radius: 12px;
+  }
+
   * { box-sizing: border-box; margin: 0; padding: 0; }
+
   body {
-    font-family: 'Segoe UI', Arial, sans-serif;
-    background: #f0f4f8;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
     min-height: 100vh;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
     padding: 20px;
   }
-  .container {
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.12);
-    max-width: 800px;
+
+  header {
     width: 100%;
-    overflow: hidden;
-  }
-  .header {
-    background: linear-gradient(135deg, #1a237e, #1565c0);
-    color: white;
-    padding: 28px 32px;
+    max-width: 800px;
+    padding: 32px 0 16px;
     text-align: center;
   }
-  .header h1 { font-size: 1.4rem; font-weight: 700; margin-bottom: 6px; }
-  .header p { font-size: 0.9rem; opacity: 0.85; }
+
+  header h1 {
+    font-size: clamp(22px, 4vw, 36px);
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1.1;
+  }
+
+  header h1 span {
+    color: var(--accent);
+  }
+
+  header p {
+    color: var(--muted);
+    margin-top: 8px;
+    font-size: 14px;
+    font-family: 'DM Mono', monospace;
+  }
+
   .stats-bar {
     display: flex;
+    gap: 16px;
     justify-content: center;
-    gap: 32px;
-    background: #e8eaf6;
-    padding: 14px;
-    font-size: 0.88rem;
-    color: #3949ab;
-    font-weight: 600;
+    margin: 20px 0;
+    flex-wrap: wrap;
   }
-  .stats-bar span { display: flex; align-items: center; gap: 6px; }
-  .question-area { padding: 32px; }
-  .question-num {
-    font-size: 0.8rem;
-    color: #9e9e9e;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 10px;
-  }
-  .question-text {
-    font-size: 1.05rem;
-    line-height: 1.6;
-    color: #212121;
-    margin-bottom: 24px;
-    font-weight: 500;
-  }
-  .options { display: flex; flex-direction: column; gap: 12px; }
-  .option {
-    border: 2px solid #e0e0e0;
-    border-radius: 10px;
-    padding: 14px 18px;
-    cursor: pointer;
-    font-size: 0.97rem;
-    color: #333;
-    transition: all 0.2s;
+
+  .stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
     display: flex;
     align-items: center;
-    gap: 12px;
-    background: white;
+    gap: 8px;
   }
-  .option:hover:not(.disabled) { border-color: #1565c0; background: #e8f0fe; }
-  .option .letter {
-    width: 30px; height: 30px;
-    border-radius: 50%;
-    background: #e8eaf6;
-    color: #3949ab;
+
+  .stat .val {
+    font-size: 18px;
     font-weight: 700;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 0.85rem;
-    flex-shrink: 0;
+    color: var(--accent);
   }
-  .option.correct { border-color: #2e7d32; background: #e8f5e9; }
-  .option.correct .letter { background: #2e7d32; color: white; }
-  .option.wrong { border-color: #c62828; background: #ffebee; }
-  .option.wrong .letter { background: #c62828; color: white; }
-  .option.show-correct { border-color: #2e7d32; background: #e8f5e9; }
-  .option.show-correct .letter { background: #2e7d32; color: white; }
-  .option.disabled { cursor: default; }
-  .feedback {
-    margin-top: 20px;
-    padding: 14px 18px;
-    border-radius: 10px;
+
+  .stat.correct .val { color: var(--green); }
+  .stat.wrong .val { color: var(--red); }
+
+  .progress-container {
+    width: 100%;
+    max-width: 800px;
+    background: var(--surface);
+    border-radius: 4px;
+    height: 4px;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transition: width 0.4s ease;
+    border-radius: 4px;
+  }
+
+  .question-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    max-width: 800px;
+    width: 100%;
+    animation: slideIn 0.3s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .q-number {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 14px;
+  }
+
+  .q-text {
+    font-size: 17px;
     font-weight: 600;
-    font-size: 0.95rem;
-    display: none;
-    align-items: center;
+    line-height: 1.6;
+    margin-bottom: 24px;
+    color: var(--text);
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
     gap: 10px;
   }
-  .feedback.correct { background: #e8f5e9; color: #2e7d32; display: flex; }
-  .feedback.wrong { background: #ffebee; color: #c62828; display: flex; }
-  .actions { padding: 0 32px 32px; display: flex; gap: 12px; justify-content: flex-end; }
-  .btn {
-    padding: 12px 28px;
-    border-radius: 8px;
-    border: none;
-    font-size: 0.95rem;
-    font-weight: 600;
+
+  .option {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 18px;
     cursor: pointer;
-    transition: all 0.2s;
-  }
-  .btn-primary { background: #1565c0; color: white; }
-  .btn-primary:hover { background: #0d47a1; }
-  .btn-secondary { background: #e8eaf6; color: #3949ab; }
-  .btn-secondary:hover { background: #c5cae9; }
-  .progress-bar {
-    height: 4px;
-    background: #e0e0e0;
-  }
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #1565c0, #42a5f5);
-    transition: width 0.4s ease;
-  }
-  .result-screen {
-    padding: 48px 32px;
-    text-align: center;
-    display: none;
-  }
-  .result-screen h2 { font-size: 2rem; color: #1a237e; margin-bottom: 12px; }
-  .result-screen .score { font-size: 3.5rem; font-weight: 700; color: #1565c0; margin: 16px 0; }
-  .result-screen p { color: #555; font-size: 1rem; margin-bottom: 24px; }
-  .result-screen .grade {
-    display: inline-block;
-    padding: 8px 24px;
-    border-radius: 20px;
-    font-weight: 600;
-    font-size: 1rem;
-    margin-bottom: 32px;
-  }
-  .grade.excellent { background: #e8f5e9; color: #2e7d32; }
-  .grade.good { background: #e3f2fd; color: #1565c0; }
-  .grade.average { background: #fff8e1; color: #f57f17; }
-  .grade.poor { background: #ffebee; color: #c62828; }
-  table.results-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    transition: all 0.15s ease;
+    font-size: 15px;
+    line-height: 1.5;
     text-align: left;
-    font-size: 0.88rem;
   }
-  table.results-table th {
-    background: #e8eaf6;
-    padding: 8px 12px;
-    color: #3949ab;
+
+  .option:hover:not(.disabled) {
+    border-color: var(--accent);
+    background: #252525;
+    transform: translateX(4px);
   }
-  table.results-table td {
-    padding: 8px 12px;
-    border-bottom: 1px solid #f0f0f0;
+
+  .option .label {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--accent);
+    background: rgba(245,197,66,0.1);
+    border-radius: 4px;
+    padding: 2px 8px;
+    min-width: 28px;
+    text-align: center;
+    flex-shrink: 0;
+    margin-top: 1px;
   }
-  .icon { font-size: 1.2rem; }
-  @media (max-width: 500px) {
-    .question-area, .actions { padding: 20px; }
-    .header { padding: 20px; }
-    .stats-bar { gap: 16px; flex-wrap: wrap; }
+
+  .option.correct {
+    border-color: var(--green);
+    background: rgba(74,222,128,0.08);
+  }
+
+  .option.correct .label {
+    background: rgba(74,222,128,0.2);
+    color: var(--green);
+  }
+
+  .option.wrong {
+    border-color: var(--red);
+    background: rgba(248,113,113,0.08);
+  }
+
+  .option.wrong .label {
+    background: rgba(248,113,113,0.2);
+    color: var(--red);
+  }
+
+  .option.disabled { cursor: default; }
+
+  .true-false-btns {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+  }
+
+  .tf-btn {
+    flex: 1;
+    padding: 16px;
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    transition: all 0.15s ease;
+    letter-spacing: 1px;
+  }
+
+  .tf-btn:hover:not(.disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  }
+
+  .tf-btn.true-btn:hover:not(.disabled) { border-color: var(--green); background: rgba(74,222,128,0.08); }
+  .tf-btn.false-btn:hover:not(.disabled) { border-color: var(--red); background: rgba(248,113,113,0.08); }
+
+  .tf-btn.correct { border-color: var(--green); background: rgba(74,222,128,0.15); color: var(--green); }
+  .tf-btn.wrong { border-color: var(--red); background: rgba(248,113,113,0.15); color: var(--red); }
+  .tf-btn.reveal-correct { border-color: var(--green); background: rgba(74,222,128,0.08); color: var(--green); }
+
+  .feedback {
+    margin-top: 20px;
+    padding: 16px 18px;
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 1.6;
+    display: none;
+    animation: fadeIn 0.25s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .feedback.correct-fb {
+    background: rgba(74,222,128,0.08);
+    border: 1px solid rgba(74,222,128,0.3);
+    color: var(--green);
+    display: block;
+  }
+
+  .feedback.wrong-fb {
+    background: rgba(248,113,113,0.08);
+    border: 1px solid rgba(248,113,113,0.3);
+    color: var(--red);
+    display: block;
+  }
+
+  .feedback strong { font-weight: 700; }
+
+  .btn-next {
+    margin-top: 20px;
+    width: 100%;
+    padding: 16px;
+    background: var(--accent);
+    color: #f0f0f0; // 0d0d0d  f0f0f0
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 1px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: none;
+    text-transform: uppercase;
+  }
+
+  .btn-next:hover {
+    background: #e0b330;
+    transform: translateY(-1px);
+  }
+
+  .btn-next.visible { display: block; }
+
+  .btn-skip {
+    margin-top: 12px;
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 1px;
+    border: 1.5px dashed #444;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-transform: uppercase;
+  }
+
+  .btn-skip:hover {
+    border-color: var(--accent2);
+    color: var(--accent2);
+    background: rgba(255,107,53,0.06);
+  }
+
+  .btn-skip.hidden { display: none !important; }
+
+  .finish-screen {
+    text-align: center;
+    max-width: 600px;
+    width: 100%;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 48px 32px;
+    animation: slideIn 0.4s ease;
+  }
+
+  .finish-screen .score-big {
+    font-size: 80px;
+    font-weight: 800;
+    line-height: 1;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .finish-screen .score-label {
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    margin: 8px 0 24px;
+    font-size: 14px;
+  }
+
+  .finish-screen h2 {
+    font-size: 26px;
+    margin-bottom: 8px;
+  }
+
+  .finish-stats {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin: 24px 0;
+    flex-wrap: wrap;
+  }
+
+  .finish-stat {
+    background: var(--surface);
+    border-radius: 10px;
+    padding: 16px 24px;
+    text-align: center;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .finish-stat .n { font-size: 28px; font-weight: 700; }
+  .finish-stat .l { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  .btn-restart {
+    background: var(--accent);
+    color: #0d0d0d; // 0d0d0d  f0f0f0
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    padding: 16px 40px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: all 0.15s ease;
+  }
+
+  .btn-restart:hover {
+    background: #e0b330;
+    transform: translateY(-2px);
+  }
+
+  .hidden { display: none !important; }
+
+  .multi-note {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent2);
+    margin-bottom: 14px;
+    background: rgba(255,107,53,0.1);
+    border-radius: 6px;
+    padding: 6px 12px;
+    display: inline-block;
+  }
+
+  .submit-multi {
+    margin-top: 16px;
+    padding: 12px 24px;
+    background: var(--surface);
+    border: 2px solid var(--accent);
+    color: var(--accent);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .submit-multi:hover { background: rgba(245,197,66,0.1); }
+
+  @media (max-width: 600px) {
+    .question-card { padding: 20px; }
+    .q-text { font-size: 15px; }
+    .option { font-size: 14px; }
   }
 </style>
 </head>
 <body>
 
-<div class="container">
-  <div class="header">
-    <h1>🔌 Τεχνικός Ηλεκτρολογικών Συστημάτων</h1>
-    <p>Εγκαταστάσεων και Δικτύων – Θεωρητικό Quiz</p>
-  </div>
-  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-  <div class="stats-bar">
-    <span>📋 Ερώτηση <span id="qNum">1</span> / <span id="qTotal">10</span></span>
-    <span>✅ Σωστές: <span id="correctCount">0</span></span>
-    <span>❌ Λάθος: <span id="wrongCount">0</span></span>
-  </div>
+<header>
+  <h1>⚡ Quiz <span>Ηλεκτρολόγος</span></h1>
+  <p>Τεχνικός Ηλεκτρολογικών Συστημάτων, Εγκαταστάσεων και Δικτύων</p>
+</header>
 
-  <!-- Question Screen -->
-  <div id="quizScreen">
-    <div class="question-area">
-      <div class="question-num" id="questionNum">Ερώτηση 1</div>
-      <div class="question-text" id="questionText"></div>
-      <div class="options" id="optionsContainer"></div>
-      <div class="feedback" id="feedback">
-        <span class="icon" id="feedbackIcon"></span>
-        <span id="feedbackText"></span>
-      </div>
-    </div>
-    <div class="actions">
-      <button class="btn btn-secondary" onclick="skipQuestion()">Παράλειψη ⏭</button>
-      <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()" style="display:none">Επόμενη →</button>
-    </div>
-  </div>
-
-  <!-- Result Screen -->
-  <div class="result-screen" id="resultScreen">
-    <div style="font-size:3rem">🏆</div>
-    <h2>Αποτελέσματα</h2>
-    <div class="score" id="finalScore"></div>
-    <p id="finalDesc"></p>
-    <div class="grade" id="gradeLabel"></div>
-    <br>
-    <button class="btn btn-primary" onclick="restartQuiz()" style="margin-right:10px">🔄 Νέο Quiz</button>
-    <button class="btn btn-secondary" onclick="showDetails()">📊 Αναλυτικά</button>
-    <div id="detailsTable" style="display:none; margin-top:24px; text-align:left; overflow-x:auto;"></div>
-  </div>
+<div class="stats-bar">
+  <div class="stat"><span>Ερώτηση</span><span class="val" id="qNum">1</span></div>
+  <div class="stat correct"><span>Σωστές</span><span class="val" id="correctCount">0</span></div>
+  <div class="stat wrong"><span>Λάθος</span><span class="val" id="wrongCount">0</span></div>
+  <div class="stat"><span>Σύνολο</span><span class="val" id="totalAnswered">0</span></div>
 </div>
 
-<script>
-const ALL_QUESTIONS = [
-  // ===== ΣΗΜΑΤΑ ΑΣΦΑΛΕΙΑΣ =====
-  {
-    q: "Τι σχήμα έχουν τα σήματα υποχρέωσης σύμφωνα με τα πρότυπα σήμανσης ασφαλείας;",
-    opts: ["Τρίγωνο κίτρινο", "Κύκλος μπλε", "Ορθογώνιο πράσινο", "Κύκλος κόκκινος με διαγώνια γραμμή"],
-    correct: 1
-  },
-  {
-    q: "Τι σχήμα έχουν τα σήματα απαγόρευσης;",
-    opts: ["Τρίγωνο κίτρινο", "Κύκλος μπλε", "Ορθογώνιο πράσινο", "Κύκλος κόκκινος με διαγώνια γραμμή"],
-    correct: 3
-  },
-  {
-    q: "Τι σχήμα έχουν τα σήματα προειδοποίησης;",
-    opts: ["Τρίγωνο κίτρινο", "Κύκλος μπλε", "Ορθογώνιο πράσινο", "Κύκλος κόκκινος"],
-    correct: 0
-  },
-  {
-    q: "Τι σχήμα έχουν τα σήματα διάσωσης ή βοήθειας;",
-    opts: ["Τρίγωνο κίτρινο", "Κύκλος μπλε", "Ορθογώνιο πράσινο", "Κύκλος κόκκινος"],
-    correct: 2
-  },
-  {
-    q: "Το σήμα με μαύρο χέρι μέσα σε κόκκινο κύκλο με διαγώνια γραμμή σημαίνει:",
-    opts: ["Γενικός κίνδυνος", "Απαγορεύεται η είσοδος στους μη έχοντες ειδική άδεια", "Ραδιενεργά υλικά", "Υποχρεωτική προστασία χεριών"],
-    correct: 1
-  },
-  {
-    q: "Το τριγωνικό σήμα με σύμβολο ραδιενέργειας (τρία φύλλα) σημαίνει:",
-    opts: ["Γενικός κίνδυνος", "Απαγορεύεται η είσοδος", "Ραδιενεργά υλικά", "Ισχυρό μαγνητικό πεδίο"],
-    correct: 2
-  },
-  {
-    q: "Το μπλε κυκλικό σήμα με άσπρο γάντι σημαίνει:",
-    opts: ["Γενικός κίνδυνος", "Απαγορεύεται η είσοδος", "Ραδιενεργά υλικά", "Υποχρεωτική προστασία χεριών"],
-    correct: 3
-  },
-  {
-    q: "Το τριγωνικό κίτρινο σήμα με θαυμαστικό (!) σημαίνει:",
-    opts: ["Ισχυρό μαγνητικό πεδίο", "Γενικός κίνδυνος", "Ραδιενεργά υλικά", "Υποχρεωτική προστασία κεφαλής"],
-    correct: 1
-  },
-  {
-    q: "Το τριγωνικό κίτρινο σήμα με σύμβολο πέταλου (μαγνήτη) σημαίνει:",
-    opts: ["Γενικός κίνδυνος", "Ραδιενεργά υλικά", "Ισχυρό μαγνητικό πεδίο", "Ηλεκτρικός κίνδυνος"],
-    correct: 2
-  },
-  // ===== ΗΛΕΚΤΡΟΛΟΓΙΚΑ ΣΧΕΔΙΑ =====
-  {
-    q: "Σε ηλεκτρολογικό σχέδιο κατόψεως κατοικίας, ο ηλεκτρικός πίνακας 10 γραμμών αποτελείται από:",
-    opts: ["10 αυτόματους διακόπτες", "10 ασφάλειες τήξης", "10 γραμμές τροφοδοσίας", "10 ρελέ"],
-    correct: 2
-  },
-  {
-    q: "Σε ηλεκτρολογικό σχέδιο, ο έλεγχος πολύφωτου από 3 σημεία υλοποιείται με:",
-    opts: ["3 απλούς διακόπτες σε σειρά", "2 αλλέ + 1 ρετούρ", "3 αλλέ", "1 αλλέ + 2 ρετούρ"],
-    correct: 1
-  },
-  {
-    q: "Στο ηλεκτρολογικό σχέδιο κατόψεως, η μόνιμη εγκατάσταση πλυντηρίου πιάτων συμβολίζεται:",
-    opts: ["Με απλή πρίζα", "Με στεγανή πρίζα", "Με σταθερή ηλεκτρική σύνδεση (χωρίς πρίζα)", "Με διπολικό διακόπτη"],
-    correct: 2
-  },
-  {
-    q: "Το ηλεκτρολογικό σχέδιο κυκλώματος φωτισμού σε κάτοψη ανήκει στην κατηγορία:",
-    opts: ["Μονογραμμικό σχέδιο", "Σχέδιο κατόψεως", "Πολυγραμμικό σχέδιο", "Σχέδιο αυτοματισμού"],
-    correct: 1
-  },
-  {
-    q: "Το μονογραμμικό ηλεκτρολογικό σχέδιο ηλεκτρικού πίνακα χρησιμοποιείται για:",
-    opts: ["Αναλυτική απεικόνιση κάθε αγωγού", "Συνοπτική απεικόνιση της δομής του πίνακα", "Σχεδίαση κατόψεων", "Σχεδίαση κυκλωμάτων αυτοματισμού"],
-    correct: 1
-  },
-  {
-    q: "Το πολυγραμμικό σχέδιο κυκλωμάτων ηλεκτρικού πίνακα φωτισμού δείχνει:",
-    opts: ["Μόνο τους αυτόματους διακόπτες", "Κάθε αγωγό ξεχωριστά με πλήρη λεπτομέρεια", "Συνοπτική απεικόνιση", "Αρχιτεκτονική διάταξη"],
-    correct: 1
-  },
-  // ===== PLC / FBD / LADDER =====
-  {
-    q: "Το σύμβολο FBD με '&' στη γλώσσα PLC αντιστοιχεί στη λογική πράξη:",
-    opts: ["AND", "OR", "NAND", "NOR"],
-    correct: 0
-  },
-  {
-    q: "Το σύμβολο FBD με '>=1' στη γλώσσα PLC αντιστοιχεί στη λογική πράξη:",
-    opts: ["AND", "OR", "NAND", "NOR"],
-    correct: 1
-  },
-  {
-    q: "Το σύμβολο FBD με '&' και κύκλο στην έξοδο (αναστροφή) αντιστοιχεί στη λογική πράξη:",
-    opts: ["AND", "OR", "NAND", "NOR"],
-    correct: 2
-  },
-  {
-    q: "Το σύμβολο FBD με '>=1' και κύκλο στην έξοδο αντιστοιχεί στη λογική πράξη:",
-    opts: ["AND", "OR", "NAND", "NOR"],
-    correct: 3
-  },
-  {
-    q: "Στη γλώσσα LADDER του PLC, δύο επαφές σε σειρά (I0.0 και I0.1 η μία μετά την άλλη) αντιστοιχούν στη λογική πράξη:",
-    opts: ["AND", "OR", "NOT", "ΕΞΟΔΟΣ"],
-    correct: 0
-  },
-  {
-    q: "Στη γλώσσα LADDER του PLC, δύο επαφές παράλληλα αντιστοιχούν στη λογική πράξη:",
-    opts: ["AND", "OR", "NOT", "ΕΞΟΔΟΣ"],
-    correct: 1
-  },
-  {
-    q: "Στη γλώσσα LADDER, η επαφή με κάθετη γραμμή στη μέση (κλειστή επαφή) αντιστοιχεί στη λογική πράξη:",
-    opts: ["AND", "OR", "NOT", "ΕΞΟΔΟΣ"],
-    correct: 2
-  },
-  {
-    q: "Στη γλώσσα LADDER, το σύμβολο με παρένθεση '( )' αντιστοιχεί:",
-    opts: ["AND", "OR", "NOT", "ΕΞΟΔΟΣ"],
-    correct: 3
-  },
-  // ===== ΑΓΩΓΟΙ / ΔΙΑΤΟΜΕΣ =====
-  {
-    q: "Για διατομή αγωγών φάσης S ≤ 16 mm², η ελάχιστη διατομή του αντίστοιχου αγωγού προστασίας είναι:",
-    opts: ["S mm²", "S/2 mm²", "16 mm²", "25 mm²"],
-    correct: 2
-  },
-  {
-    q: "Για διατομή αγωγών φάσης 16 ≤ S ≤ 35 mm², η ελάχιστη διατομή του αγωγού προστασίας είναι:",
-    opts: ["S mm²", "S/2 mm²", "16 mm²", "35 mm²"],
-    correct: 2
-  },
-  {
-    q: "Το καλώδιο πρόσθετης εξυπηρέτησης του ηλεκτρικού πίνακα έχει διάμετρο:",
-    opts: ["0,75 mm²", "1,5 mm²", "2,5 mm²", "6 mm²"],
-    correct: 0
-  },
-  // ===== ΕΚΚΙΝΗΣΗ ΚΙΝΗΤΗΡΑ =====
-  {
-    q: "Για να πραγματοποιήσουμε εκκίνηση κινητήρα με διακόπτη αστέρα-τρίγωνο στο κύκλωμα ισχύος χρησιμοποιούμε:",
-    opts: ["Έναν ηλεκτρονόμο", "Δύο ηλεκτρονόμους", "Τρεις ηλεκτρονόμους", "Τέσσερις ηλεκτρονόμους"],
-    correct: 2
-  },
-  {
-    q: "Κατά την εκκίνηση τριφασικού κινητήρα, ο κινητήρας κάνει θόρυβο χωρίς να ξεκινήσει. Ποια είναι η πιθανή αιτία;",
-    opts: ["Τροφοδοτείται από δύο φάσεις", "Δεν έχει τοποθετηθεί η ανοικτή βοηθητική επαφή", "Έχουν αντιμετατεθεί και οι τρεις φάσεις τροφοδοσίας", "Βλάβη στο θερμικό ρελέ"],
-    correct: 2
-  },
-  {
-    q: "Όταν αφήσω το κουμπί start ο κινητήρας σταματάει. Ποια είναι η πιθανή βλάβη;",
-    opts: ["Τροφοδοτείται από δύο φάσεις", "Δεν έχει τοποθετηθεί η ανοικτή βοηθητική επαφή (αυτοσυγκράτηση)", "Έχουν αντιμετατεθεί οι φάσεις", "Βλάβη στον κινητήρα"],
-    correct: 1
-  },
-  {
-    q: "Κατά την αλλαγή φοράς περιστροφής τριφασικού κινητήρα, ο κινητήρας περιστρέφεται πάντα προς την ίδια φορά. Ποια η πιθανή αιτία;",
-    opts: ["Τροφοδοτείται από δύο φάσεις", "Δεν έχει τοποθετηθεί η NC βοηθητική επαφή (μηχανική ασφάλεια)", "Βλάβη στον κινητήρα", "Ελάττωμα στις ασφάλειες"],
-    correct: 1
-  },
-  // ===== ΚΑΛΩΔΙΩΣΗ ΔΙΚΤΥΩΝ =====
-  {
-    q: "Το καλώδιο συνεστραμμένων ζευγαριών που προσφέρει τη μεγαλύτερη προστασία από κάθε είδους θόρυβο είναι:",
-    opts: ["STP", "FTP", "UTP", "SSTP"],
-    correct: 3
-  },
-  {
-    q: "Σε καλωδίωση δικτύου, το λάθος της αναστροφής ζευγαριού σημαίνει:",
-    opts: ["Τα καλώδια ενός ζεύγους είναι συνδεδεμένα σε λάθος ζεύγος", "Οι δύο αγωγοί του ζεύγους είναι αντεστραμμένοι", "Ένα ζεύγος δεν είναι συνδεδεμένο", "Δύο ζεύγη έχουν διαχωριστεί"],
-    correct: 1
-  },
-  {
-    q: "Σε καλωδίωση δικτύου, το λάθος της διασταύρωσης ζευγαριού σημαίνει:",
-    opts: ["Οι δύο αγωγοί ενός ζεύγους είναι αντεστραμμένοι", "Ένας αγωγός ενός ζεύγους έχει αντιμετατεθεί με αγωγό άλλου ζεύγους", "Ένα ζεύγος είναι ανοικτό", "Λάθος εγκατάσταση κονέκτορα"],
-    correct: 1
-  },
-  // ===== ΜΕΤΡΗΣΕΙΣ / ΟΡΓΑΝΑ =====
-  {
-    q: "Ο εντοπισμός σφάλματος καλωδίων γίνεται με τον εξής τρόπο:",
-    opts: ["Με ωμόμετρο", "Με γέφυρα Wheatson", "Με τη μέθοδο Murray", "Με χρησιμοποίηση αμπερομέτρου – βολτομέτρου"],
-    correct: 2
-  },
-  {
-    q: "Ο εντοπισμός σφάλματος καλωδίων αφορά (επιλέξτε τις σωστές):",
-    opts: ["Στη διαρροή αγωγού ως προς τη γη", "Στη διακοπή της συνέχειας αγωγού", "Στη λανθασμένη διατομή", "Και τις δύο: διαρροή και διακοπή"],
-    correct: 3
-  },
-  {
-    q: "Η ενδεικτική σειρά ελέγχου ηλεκτρικής εγκατάστασης για διάγνωση βλαβών είναι:",
-    opts: ["Δοκιμή → Επισκευή → Εντοπισμός → Μετρήσεις", "Εντοπισμός Συμπτώματος → Σειρά Μετρήσεων → Δοκιμή → Επισκευή", "Μετρήσεις → Εντοπισμός → Επισκευή → Δοκιμή", "Επισκευή → Δοκιμή → Μετρήσεις → Εντοπισμός"],
-    correct: 1
-  },
-  {
-    q: "Το πηλίκο της μεταβολής ένδειξης του οργάνου ως προς μια μικρή μεταβολή της εισόδου ονομάζεται:",
-    opts: ["Ευαισθησία του οργάνου", "Κλάση του οργάνου", "Σφάλμα της μέτρησης", "Ακρίβεια της μέτρησης"],
-    correct: 0
-  },
-  {
-    q: "Όταν πάνω σε ένα όργανο καταγράφεται ένα ποσοστό, αυτό εκφράζει:",
-    opts: ["Την ευαισθησία του οργάνου", "Την ακρίβεια της μέτρησης", "Το απόλυτο σφάλμα της μέτρησης", "Το σχετικό σφάλμα της μέτρησης"],
-    correct: 1
-  },
-  {
-    q: "Για τη μέτρηση της συνολικής αντίστασης κυκλώματος με αμπερόμετρο και βολτόμετρο, ποια ζεύγη οργάνων επιλέγουμε;",
-    opts: ["1 και 2", "4 και 8", "6 και 7", "4 και 5"],
-    correct: 1
-  },
-  // ===== ΤΡΟΦΟΔΟΤΙΚΑ / ΑΝΟΡΘΩΣΗ =====
-  {
-    q: "Ποια βαθμίδα τροφοδοτικού καταργεί τις αρνητικές ημιπεριόδους της AC τάσης;",
-    opts: ["Μετασχηματιστής", "Ανορθωτής", "Φίλτρο", "Σταθεροποιητής"],
-    correct: 1
-  },
-  {
-    q: "Ποια βαθμίδα τροφοδοτικού εξομαλύνει τις κυματώσεις της ανορθωμένης τάσης;",
-    opts: ["Μετασχηματιστής", "Ανορθωτής", "Φίλτρο", "Σταθεροποιητής"],
-    correct: 2
-  },
-  {
-    q: "Ποια βαθμίδα τροφοδοτικού ανυψώνει ή υποβιβάζει την AC τάση;",
-    opts: ["Μετασχηματιστής", "Ανορθωτής", "Φίλτρο", "Σταθεροποιητής"],
-    correct: 0
-  },
-  {
-    q: "Ποια βαθμίδα τροφοδοτικού διατηρεί τη DC τάση σταθερή ανεξάρτητα από την αντίσταση τροφοδοτούμενης βαθμίδας;",
-    opts: ["Μετασχηματιστής", "Ανορθωτής", "Φίλτρο", "Σταθεροποιητής"],
-    correct: 3
-  },
-  {
-    q: "Η μονοφασική απλή ανόρθωση (μισής περιόδου) χρησιμοποιεί:",
-    opts: ["Έναν δίοδο", "Δύο διόδους", "Τέσσερις διόδους σε γέφυρα", "Έξι διόδους"],
-    correct: 0
-  },
-  {
-    q: "Η μονοφασική πλήρης ανόρθωση (γέφυρα Graetz) χρησιμοποιεί:",
-    opts: ["Έναν δίοδο", "Δύο διόδους", "Τέσσερις διόδους σε γέφυρα", "Έξι διόδους"],
-    correct: 2
-  },
-  // ===== ΓΕΝΙΚΑ ΗΛΕΚΤΡΟΛΟΓΙΚΑ =====
-  {
-    q: "Αν μπαταρίες σχεδιασμένες για UPS χρησιμοποιηθούν σε τηλεπικοινωνιακές εφαρμογές:",
-    opts: ["Λειτουργούν κανονικά", "Θα δημιουργηθεί υπερθέρμανση στις πλάκες μολύβδου και ανεπανόρθωτη βλάβη", "Αυξάνεται η χωρητικότητα", "Βελτιώνεται η απόδοση"],
-    correct: 1
-  },
-  {
-    q: "Στο κύκλωμα αυτοματισμού εκκίνησης κινητήρα, η επαφή αυτοσυγκράτησης συνδέεται:",
-    opts: ["Σε σειρά με το κουμπί START", "Παράλληλα με το κουμπί START", "Σε σειρά με το κουμπί STOP", "Παράλληλα με το κουμπί STOP"],
-    correct: 1
-  },
-  {
-    q: "Ποιο κύκλωμα χρησιμοποιείται για εκκίνηση κλιμακοστασίου;",
-    opts: ["Κύκλωμα με διακόπτη αλλέ-ρετούρ", "Κύκλωμα με χρονοδιακόπτη", "Κύκλωμα με διακόπτη κομμιτατέρ", "Κύκλωμα με αισθητήρα κίνησης"],
-    correct: 1
-  },
-  {
-    q: "Σε κύκλωμα φωτισμού κλιμακοστασίου, το φωτιστικό ελέγχεται από χρονοδιακόπτη που:",
-    opts: ["Κρατά το φως αναμμένο συνεχώς", "Σβήνει το φως μετά από προκαθορισμένο χρόνο", "Ανάβει το φως αυτόματα όταν σκοτεινιάσει", "Ελέγχει την ένταση του φωτός"],
-    correct: 1
-  },
-  {
-    q: "Η απόσβεση γραμμής μετράται σε:",
-    opts: ["-20 dB", "100 Ω", "50 Ω", "75 Ω"],
-    correct: 0
-  },
-  {
-    q: "Η χαρακτηριστική αντίσταση ενισχυτή δικτύου τηλεπικοινωνιών είναι:",
-    opts: ["-20 dB", "100 Ω", "50 Ω ή 75 Ω", "1 kΩ"],
-    correct: 2
-  },
-  // ===== ΤΕΧΝΙΚΑ ΣΧΕΔΙΑ =====
-  {
-    q: "Ποιο είδος σχεδίου χρησιμοποιείται για την αναπαράσταση εξαρτημάτων με όψεις και τομές;",
-    opts: ["Αρχιτεκτονικό", "Μηχανολογικό", "Ηλεκτρολογικό", "Ηλεκτρονικό"],
-    correct: 1
-  },
-  {
-    q: "Ποιο είδος σχεδίου δείχνει κάτοψη κτιρίου με τοίχους και ανοίγματα;",
-    opts: ["Αρχιτεκτονικό", "Μηχανολογικό", "Ηλεκτρολογικό", "Ηλεκτρονικό"],
-    correct: 0
-  },
-  {
-    q: "Κύκλωμα με τρανζίστορ, αντιστάσεις και πυκνωτές αποτελεί:",
-    opts: ["Αρχιτεκτονικό σχέδιο", "Μηχανολογικό σχέδιο", "Ηλεκτρολογικό σχέδιο", "Ηλεκτρονικό σχέδιο"],
-    correct: 3
-  },
-  // ===== ΔΙΑΔΙΚΤΥΟ / E-ΥΠΗΡΕΣΙΕΣ =====
-  {
-    q: "Ποια από τις παρακάτω υπηρεσίες χρησιμοποιείται για ηλεκτρονικές αγορές;",
-    opts: ["e-mail", "e-shop", "e-παράβολο", "e-banking"],
-    correct: 1
-  },
-  {
-    q: "Η υπηρεσία e-παράβολο αφορά:",
-    opts: ["Ηλεκτρονικές αγορές", "Ηλεκτρονικό ταχυδρομείο", "Πληρωμή παραβόλων δημοσίου ηλεκτρονικά", "Έρευνα αγοράς"],
-    correct: 2
-  },
-  // ===== ΛΑΜΠΤΗΡΕΣ / ΚΥΚΛΩΜΑ ΑΥΤΟΜΑΤΙΣΜΟΥ =====
-  {
-    q: "Σε κύκλωμα με ηλεκτρονόμο, οι επαφές 1-2, 3-4, 5-6 (ΝΟ) συνδέουν λαμπτήρες h1, h2, h3. Αν κλείσουμε τον διακόπτη S1 και ενεργοποιηθεί ο ηλεκτρονόμος, οι λαμπτήρες h1, h2, h3 θα είναι:",
-    opts: ["Όλοι αναμμένοι", "Όλοι σβηστοί", "Μόνο h1 αναμμένος", "Μόνο h3 αναμμένος"],
-    correct: 0
-  },
-  {
-    q: "Στο ίδιο κύκλωμα, οι επαφές 13-14, 11-12 (NC) συνδέουν λαμπτήρες h4, h5. Αν ενεργοποιηθεί ο ηλεκτρονόμος, οι λαμπτήρες h4, h5 θα είναι:",
-    opts: ["Αναμμένοι", "Σβηστοί", "Αναβοσβήνουν", "Ανεξάρτητοι"],
-    correct: 1
-  },
-  // ===== ΓΕΝΙΚΕΣ ΓΝΩΣΕΙΣ ΗΛΕΚΤΡΟΛΟΓΙΑΣ =====
-  {
-    q: "Ποιο στοιχείο χρησιμοποιείται για την προστασία κινητήρα από υπερφόρτιση;",
-    opts: ["Ασφαλειοαποζεύκτης", "Θερμικό ρελέ", "Ηλεκτρονόμος", "Αυτόματος διακόπτης"],
-    correct: 1
-  },
-  {
-    q: "Ποιος εξοπλισμός χρησιμοποιείται για την άμεση αποζεύξη της τροφοδοσίας κυκλώματος;",
-    opts: ["Θερμικό ρελέ", "Ηλεκτρονόμος", "Ασφαλειοαποζεύκτης ή ασφαλειοδιακόπτης", "Πηνίο ηλεκτρονόμου"],
-    correct: 2
-  },
-  {
-    q: "Η τριφασική εγκατάσταση διαφέρει από τη μονοφασική στο ότι:",
-    opts: ["Χρησιμοποιεί μόνο έναν αγωγό φάσης", "Χρησιμοποιεί τρεις αγωγούς φάσης", "Δεν έχει αγωγό ουδέτερο", "Λειτουργεί σε χαμηλότερη τάση"],
-    correct: 1
-  },
-  {
-    q: "Για εκκίνηση αστέρα-τρίγωνου, η εκκίνηση αστέρα μειώνει το ρεύμα εκκίνησης κατά:",
-    opts: ["1/2 σε σχέση με άμεση εκκίνηση τριγώνου", "1/3 σε σχέση με άμεση εκκίνηση τριγώνου", "2/3 σε σχέση με άμεση εκκίνηση τριγώνου", "Το διπλάσιο"],
-    correct: 1
-  },
-  {
-    q: "Ποια από τις παρακάτω γλώσσες προγραμματισμού PLC είναι γραφική;",
-    opts: ["ST (Structured Text)", "IL (Instruction List)", "LADDER και FBD", "Μόνο LADDER"],
-    correct: 2
-  },
-  {
-    q: "Στη γλώσσα LADDER, η εντολή END χρησιμοποιείται για:",
-    opts: ["Διαγραφή του προγράμματος", "Σήμανση τέλους του προγράμματος PLC", "Εκκίνηση κινητήρα", "Ανακύκλωση προγράμματος"],
-    correct: 1
-  },
-  {
-    q: "Το σύμβολο -(END)- στη γλώσσα LADDER αντιστοιχεί:",
-    opts: ["Σε έξοδο", "Σε κανονικά ανοιχτή επαφή", "Στο τέλος του προγράμματος", "Σε χρονοδιακόπτη"],
-    correct: 2
-  },
-  {
-    q: "Στο πρόγραμμα LADDER εκκίνησης και αλλαγής φοράς κινητήρα, η επαφή NC του μπουτόν STOP είναι:",
-    opts: ["Ανοιχτή επαφή (NO)", "Κλειστή επαφή (NC)", "Έξοδος", "Χρονοδιακόπτης"],
-    correct: 1
-  },
-  {
-    q: "Στο κύκλωμα αυτοματισμού εκκίνησης και αλλαγής φοράς, ο ρόλος του θερμικού ρελέ είναι:",
-    opts: ["Εκκίνηση κινητήρα", "Προστασία από υπερφόρτιση", "Αλλαγή φοράς", "Σήμανση λειτουργίας"],
-    correct: 1
-  },
-  {
-    q: "Σε κύκλωμα φωτισμού με λαμπτήρες φθορισμού, ποιο στοιχείο περιορίζει το ρεύμα;",
-    opts: ["Starter", "Ballast (πηνίο)", "Ασφάλεια", "Διακόπτης"],
-    correct: 1
-  },
-  {
-    q: "Ο starter στο κύκλωμα λαμπτήρα φθορισμού χρησιμεύει για:",
-    opts: ["Περιορισμό ρεύματος", "Παροχή παλμού υψηλής τάσης για ανάφλεξη", "Σβήσιμο λαμπτήρα", "Ρύθμιση φωτεινότητας"],
-    correct: 1
-  },
-  {
-    q: "Ποιο καλώδιο χρησιμοποιείται για συνδέσεις δικτύων Ethernet σε εγκαταστάσεις κατηγορίας Cat5e/Cat6;",
-    opts: ["Καλώδιο ομοαξονικό", "UTP ή FTP καλώδιο συνεστραμμένων ζευγαριών", "Οπτική ίνα μόνο", "Καλώδιο ισχύος"],
-    correct: 1
-  },
-  {
-    q: "Στη σωστή συρμάτωση 4 ζευγαριών δικτύου, ποια διάταξη χρησιμοποιείται;",
-    opts: ["T568A ή T568B", "Τυχαία διάταξη", "Κόκκινο-μπλε εναλλάξ", "Μόνο T568A"],
-    correct: 0
-  },
-  {
-    q: "Το φωτοβολταϊκό σύστημα συνδεδεμένο με το δίκτυο (on-grid) χαρακτηρίζεται από:",
-    opts: ["Αποθήκευση ενέργειας σε μπαταρίες", "Απευθείας τροφοδοσία του δικτύου διανομής", "Αυτόνομη λειτουργία", "Λειτουργία μόνο τη νύχτα"],
-    correct: 1
-  },
-  {
-    q: "Ποιο σύστημα UPS παρέχει συνεχή τροφοδοσία χωρίς καμία διακοπή κατά τη μεταγωγή;",
-    opts: ["Off-line UPS", "Line-interactive UPS", "On-line (double conversion) UPS", "Σύστημα με γεννήτρια"],
-    correct: 2
-  },
-  {
-    q: "Ποιος τύπος αισθητήρα χρησιμοποιείται συνήθως για μέτρηση θερμοκρασίας σε βιομηχανικές εφαρμογές PLC;",
-    opts: ["Φωτοδίοδος", "Θερμοστοιχείο (θερμοζεύγος) ή RTD", "Πιεζοηλεκτρικός", "Hall effect"],
-    correct: 1
-  },
-  {
-    q: "Ποια προστασία χρησιμοποιείται κατά κύριο λόγο για προστασία από ηλεκτροπληξία λόγω έμμεσης επαφής;",
-    opts: ["Ασφάλεια τήξης", "Αυτόματος διακόπτης", "Διαφορικό ρελέ (RCD)", "Θερμικό ρελέ"],
-    correct: 2
-  },
-  {
-    q: "Ποια είναι η ονομαστική τάση μονοφασικής εγκατάστασης στην Ελλάδα;",
-    opts: ["110 V", "220 V", "230 V", "400 V"],
-    correct: 2
-  },
-  {
-    q: "Ποια είναι η ονομαστική τάση τριφασικής εγκατάστασης στην Ελλάδα (μεταξύ φάσεων);",
-    opts: ["220 V", "230 V", "380 V", "400 V"],
-    correct: 3
-  },
-  {
-    q: "Ποια συχνότητα χρησιμοποιείται στο ηλεκτρικό δίκτυο της Ευρώπης;",
-    opts: ["50 Hz", "60 Hz", "100 Hz", "25 Hz"],
-    correct: 0
-  },
-  {
-    q: "Ο αγωγός προστασίας (PE) χαρακτηρίζεται από το χρώμα:",
-    opts: ["Μπλε", "Κίτρινο", "Πράσινο-κίτρινο", "Καφέ"],
-    correct: 2
-  },
-  {
-    q: "Ο αγωγός ουδέτερος (N) χαρακτηρίζεται από το χρώμα:",
-    opts: ["Μπλε", "Κίτρινο", "Πράσινο-κίτρινο", "Καφέ"],
-    correct: 0
-  },
-  {
-    q: "Ο αγωγός φάσης σε μονοφασικό κύκλωμα χαρακτηρίζεται από το χρώμα:",
-    opts: ["Μπλε", "Κίτρινο", "Πράσινο-κίτρινο", "Καφέ"],
-    correct: 3
-  },
-  {
-    q: "Το RCD (διαφορικό ρελέ) ενεργοποιείται όταν:",
-    opts: ["Υπάρχει υπερφόρτιση", "Υπάρχει βραχυκύκλωμα", "Υπάρχει διαρροή ρεύματος προς γη", "Η τάση πέσει κάτω από ορισμένο επίπεδο"],
-    correct: 2
-  },
-  {
-    q: "Ο αυτόματος διακόπτης (MCB) προστατεύει κύκλωμα από:",
-    opts: ["Διαρροή προς γη", "Υπερφόρτιση και βραχυκύκλωμα", "Υπέρταση", "Ηλεκτρομαγνητικές παρεμβολές"],
-    correct: 1
-  },
-  {
-    q: "Η σύνδεση αστέρα (Υ) σε τριφασικό κινητήρα σημαίνει:",
-    opts: ["Τα τυλίγματα συνδέονται παράλληλα", "Ένα άκρο κάθε τυλίγματος συνδέεται στο κοινό σημείο (ουδέτερο)", "Κάθε τύλιγμα τροφοδοτείται με τάση γραμμής", "Ο κινητήρας λειτουργεί σε μειωμένη τάση πάντα"],
-    correct: 1
-  },
-  {
-    q: "Η σύνδεση τριγώνου (Δ) σε τριφασικό κινητήρα σημαίνει:",
-    opts: ["Τα τυλίγματα συνδέονται σε σειρά σχηματίζοντας τρίγωνο", "Ένα κοινό σημείο ουδέτερου", "Χαμηλότερη τάση ανά τύλιγμα", "Χρησιμοποιείται μόνο για εκκίνηση"],
-    correct: 0
-  },
-  {
-    q: "Τι είναι το PLC (Programmable Logic Controller);",
-    opts: ["Ψηφιακός μετρητής", "Βιομηχανικός υπολογιστής για αυτοματισμό", "Ηλεκτρονόμος", "Αισθητήρας θερμοκρασίας"],
-    correct: 1
-  },
-  {
-    q: "Ποια γλώσσα προγραμματισμού PLC μοιάζει με τα ηλεκτρολογικά σχέδια ισχύος (αγωγοί και επαφές);",
-    opts: ["FBD", "ST", "LADDER", "IL"],
-    correct: 2
-  },
-  {
-    q: "Η γλώσσα FBD (Function Block Diagram) χρησιμοποιεί:",
-    opts: ["Κειμενικές εντολές", "Γραφικά τετράγωνα (blocks) που αναπαριστούν λογικές συναρτήσεις", "Σκάλες και επαφές", "Διαγράμματα ροής"],
-    correct: 1
-  },
-  {
-    q: "Στο κύκλωμα ισχύος εκκίνησης κινητήρα αστέρα-τρίγωνου, ποια είναι η σωστή ακολουθία;",
-    opts: ["Αστέρας → Τρίγωνο", "Τρίγωνο → Αστέρας", "Αστέρας → Στοπ → Τρίγωνο", "Μόνο Τρίγωνο"],
-    correct: 0
-  },
-  {
-    q: "Το θερμικό ρελέ (bimetal) ρυθμίζεται βάσει:",
-    opts: ["Της τάσης τροφοδοσίας", "Του ονομαστικού ρεύματος του κινητήρα", "Της ταχύτητας περιστροφής", "Της θερμοκρασίας περιβάλλοντος"],
-    correct: 1
-  },
-  {
-    q: "Σε κύκλωμα κουδουνιού-ηλεκτρικής κλειδαριάς, ο επισκέπτης πατά το κουμπί και:",
-    opts: ["Ο κάτοικος ακούει τον κουδούνι και ανοίγει την πόρτα ηλεκτρικά", "Η πόρτα ανοίγει αυτόματα", "Ο κουδούνι χτυπά συνέχεια", "Αποστέλλεται μήνυμα"],
-    correct: 0
-  },
-  {
-    q: "Ποια είναι η βασική διαφορά μεταξύ διακόπτη αλλέ (allee) και ρετούρ (retour);",
-    opts: ["Δεν υπάρχει διαφορά", "Ο αλλέ έχει 2 θέσεις, ο ρετούρ έχει 3 θέσεις (ενδιάμεση)", "Ο ρετούρ χρησιμοποιείται μόνο στην αρχή", "Ο αλλέ ελέγχει περισσότερα φώτα"],
-    correct: 1
-  },
-  {
-    q: "Ποιος τύπος διακόπτη χρησιμοποιείται για έλεγχο φωτιστικού από δύο σημεία;",
-    opts: ["Δύο απλοί μονοπολικοί διακόπτες", "Δύο διακόπτες αλλέ (va-et-vient)", "Ένας αλλέ και ένας ρετούρ", "Δύο διπολικοί διακόπτες"],
-    correct: 1
-  },
-  {
-    q: "Ο διακόπτης κομμιτατέρ (commutateur) χρησιμοποιείται για:",
-    opts: ["Έλεγχο φωτισμού από δύο σημεία", "Επιλογή μεταξύ δύο κυκλωμάτων φωτισμού", "Βύθιση και εξαγωγή", "Προστασία από βραχυκύκλωμα"],
-    correct: 1
-  },
-  {
-    q: "Τι εκφράζει ο συντελεστής ισχύος (cos φ) σε AC κύκλωμα;",
-    opts: ["Το λόγο ενεργού προς φαινόμενη ισχύ", "Το λόγο τάσης προς ρεύμα", "Την αντίσταση κυκλώματος", "Τη συχνότητα δικτύου"],
-    correct: 0
-  },
-  {
-    q: "Η βελτίωση του συντελεστή ισχύος γίνεται με:",
-    opts: ["Προσθήκη αντιστάσεων", "Προσθήκη πυκνωτών", "Αύξηση τάσης", "Μείωση φορτίου"],
-    correct: 1
-  },
-  {
-    q: "Σε σύστημα γείωσης TT, το πρώτο γράμμα 'T' σημαίνει:",
-    opts: ["Το ουδέτερο είναι απομονωμένο από γη", "Το σημείο ουδέτερου του μετασχηματιστή είναι άμεσα γειωμένο", "Τα μεταλλικά μέρη συνδέονται σε ανεξάρτητο ηλεκτρόδιο γείωσης", "Δεν υπάρχει γείωση"],
-    correct: 1
-  },
-  {
-    q: "Ποιο σύστημα γείωσης χρησιμοποιείται κατά κύριο λόγο σε οικιακές εγκαταστάσεις στην Ελλάδα;",
-    opts: ["TN-C", "TN-S", "TT", "IT"],
-    correct: 2
-  },
-  {
-    q: "Το σύστημα IT χρησιμοποιείται κυρίως:",
-    opts: ["Σε οικίες", "Σε νοσοκομεία και βιομηχανίες όπου απαιτείται συνέχεια τροφοδοσίας", "Σε γεωργικές εγκαταστάσεις", "Σε γραφεία"],
-    correct: 1
-  },
-  {
-    q: "Η τριφασική απλή ανόρθωση χρησιμοποιεί:",
-    opts: ["3 διόδους", "4 διόδους", "6 διόδους", "12 διόδους"],
-    correct: 0
-  },
-  {
-    q: "Η τριφασική πλήρης ανόρθωση (γέφυρα) χρησιμοποιεί:",
-    opts: ["3 διόδους", "4 διόδους", "6 διόδους", "12 διόδους"],
-    correct: 2
-  },
-  {
-    q: "Ποιο είδος φωτοβολταϊκού συστήματος χρησιμοποιεί μπαταρίες για αποθήκευση;",
-    opts: ["On-grid (συνδεδεμένο με δίκτυο)", "Off-grid (αυτόνομο)", "Hybrid", "Net metering"],
-    correct: 1
-  },
-  {
-    q: "Σε ηλεκτρολογική εγκατάσταση, το φαινόμενο της αρμονικής παραμόρφωσης (THD) προκαλείται από:",
-    opts: ["Γραμμικά φορτία", "Μη γραμμικά φορτία (μετατροπείς, PC, κλπ.)", "Υπερτάσεις", "Διακοπές ρεύματος"],
-    correct: 1
-  },
-  {
-    q: "Ποια συσκευή χρησιμοποιείται για μέτρηση ενεργού ισχύος;",
-    opts: ["Βολτόμετρο", "Αμπερόμετρο", "Βαττόμετρο", "Ωμόμετρο"],
-    correct: 2
-  },
-  {
-    q: "Ποιο από τα παρακάτω είναι παθητικό ηλεκτρικό στοιχείο;",
-    opts: ["Τρανζίστορ", "Δίοδος", "Πυκνωτής", "Op-Amp"],
-    correct: 2
-  },
-  {
-    q: "Ποιο στοιχείο αντιστέκεται στις μεταβολές του ρεύματος;",
-    opts: ["Αντίσταση", "Πυκνωτής", "Πηνίο (επαγωγή)", "Δίοδος"],
-    correct: 2
-  },
-  {
-    q: "Ποιο στοιχείο αντιστέκεται στις μεταβολές της τάσης;",
-    opts: ["Αντίσταση", "Πυκνωτής", "Πηνίο", "Δίοδος"],
-    correct: 1
-  },
-  {
-    q: "Σε σειρά κυκλώματος RLC στον συντονισμό ισχύει:",
-    opts: ["XL > XC", "XC > XL", "XL = XC", "R = 0"],
-    correct: 2
-  },
-  {
-    q: "Ποια ηλεκτρική ποσότητα μετράται σε Ωμ (Ω);",
-    opts: ["Ένταση ρεύματος", "Τάση", "Αντίσταση", "Ισχύς"],
-    correct: 2
-  },
-  {
-    q: "Ποιος νόμος εκφράζει τη σχέση V = I × R;",
-    opts: ["Νόμος Kirchhoff ρευμάτων", "Νόμος Kirchhoff τάσεων", "Νόμος Ohm", "Νόμος Faraday"],
-    correct: 2
-  },
-  {
-    q: "Σε παράλληλο κύκλωμα, η τάση σε κάθε κλάδο είναι:",
-    opts: ["Ίση με την τάση πηγής", "Διαφορετική ανά κλάδο", "Μηδέν", "Το άθροισμα των επιμέρους τάσεων"],
-    correct: 0
-  },
-  {
-    q: "Σε σειρά κύκλωμα, το ρεύμα σε κάθε στοιχείο είναι:",
-    opts: ["Διαφορετικό ανά στοιχείο", "Ίδιο παντού", "Μηδέν στα άκρα", "Ανάλογο της αντίστασης"],
-    correct: 1
-  },
-  {
-    q: "Ποιο εργαλείο χρησιμοποιείται για τη μέτρηση αντίστασης χωρίς τροφοδοσία κυκλώματος;",
-    opts: ["Βολτόμετρο", "Αμπερόμετρο", "Ωμόμετρο", "Βαττόμετρο"],
-    correct: 2
-  },
-  {
-    q: "Ποια είναι η μονάδα μέτρησης της ηλεκτρικής ενέργειας (κατανάλωσης);",
-    opts: ["Watt (W)", "Volt (V)", "Kilowatt-hour (kWh)", "Ampere (A)"],
-    correct: 2
-  },
-  {
-    q: "Τι μετράει ο μετρητής ενέργειας (ηλεκτρονόμετρο) σε μια οικία;",
-    opts: ["Την ένταση ρεύματος", "Την τάση δικτύου", "Την καταναλωθείσα ηλεκτρική ενέργεια σε kWh", "Τη συχνότητα δικτύου"],
-    correct: 2
-  },
-  {
-    q: "Ποιο από τα παρακάτω είναι χαρακτηριστικό της εγκατάστασης σε χώρους με αυξημένο κίνδυνο (π.χ. μπάνιο ζώνη 1);",
-    opts: ["Χρήση κανονικών πριζών", "Χρήση μόνο στεγανών συσκευών κλάσης προστασίας IPX4 και άνω", "Χρήση οποιασδήποτε ηλεκτρικής συσκευής", "Απαγορεύεται κάθε ηλεκτρική εγκατάσταση"],
-    correct: 1
-  },
-  {
-    q: "Τι είναι το SELV (Safety Extra Low Voltage);",
-    opts: ["Τάση 230V", "Πολύ χαμηλή τάση ασφαλείας (έως 50V AC) χωρίς κίνδυνο ηλεκτροπληξίας", "Σύστημα γείωσης", "Τύπος ασφάλειας τήξης"],
-    correct: 1
-  },
-  {
-    q: "Η κατηγορία IP (Ingress Protection) δείχνει:",
-    opts: ["Την τάση λειτουργίας της συσκευής", "Τον βαθμό προστασίας από εισχώρηση σκόνης και νερού", "Τον βαθμό μόνωσης", "Την ισχύ της συσκευής"],
-    correct: 1
-  },
-  {
-    q: "Ποιο είδος λαμπτήρα έχει τη μεγαλύτερη ενεργειακή απόδοση (lm/W);",
-    opts: ["Πυράκτωσης", "Αλογόνου", "Φθορισμού (CFL)", "LED"],
-    correct: 3
-  },
-  {
-    q: "Ποιο πρωτόκολλο χρησιμοποιείται για αυτοματισμό κτιρίου (BAS);",
-    opts: ["HTTP", "BACnet ή KNX", "FTP", "SMTP"],
-    correct: 1
-  },
-  {
-    q: "Η τοπολογία αστέρα σε δίκτυο υπολογιστών χαρακτηρίζεται από:",
-    opts: ["Άμεση σύνδεση κάθε κόμβου με όλους", "Κάθε κόμβος συνδέεται με κεντρικό κόμβο (hub/switch)", "Κυκλική σύνδεση", "Γραμμική σύνδεση"],
-    correct: 1
-  },
-  {
-    q: "Ποιο μέσο μετάδοσης προσφέρει το μεγαλύτερο εύρος ζώνης για δίκτυα;",
-    opts: ["UTP καλώδιο", "STP καλώδιο", "Ομοαξονικό καλώδιο", "Οπτική ίνα"],
-    correct: 3
-  },
-  {
-    q: "Ποια τεχνολογία ασύρματης δικτύωσης χρησιμοποιείται στο πρότυπο IEEE 802.11;",
-    opts: ["Bluetooth", "Wi-Fi", "ZigBee", "NFC"],
-    correct: 1
-  },
-  {
-    q: "Ποιο εύρος IP διευθύνσεων ανήκει στην κλάση C;",
-    opts: ["1.0.0.0 – 126.0.0.0", "128.0.0.0 – 191.255.0.0", "192.0.0.0 – 223.255.255.0", "224.0.0.0 – 239.255.255.255"],
-    correct: 2
-  },
-  {
-    q: "Τι είναι το subnet mask;",
-    opts: ["Η IP διεύθυνση του router", "Μάσκα που καθορίζει ποιο τμήμα της IP είναι δίκτυο και ποιο host", "Ο αριθμός των συνδεδεμένων συσκευών", "Το πρωτόκολλο ασφαλείας"],
-    correct: 1
-  },
-  {
-    q: "Ποια υπηρεσία μετατρέπει domain names σε IP διευθύνσεις;",
-    opts: ["DHCP", "DNS", "HTTP", "FTP"],
-    correct: 1
-  },
-  {
-    q: "Ποιο πρωτόκολλο χρησιμοποιείται για αυτόματη απόδοση IP διευθύνσεων;",
-    opts: ["DNS", "DHCP", "HTTP", "SMTP"],
-    correct: 1
-  },
-  {
-    q: "Ποιο εργαλείο ελέγχει τη συνδεσιμότητα δικτύου στέλνοντας πακέτα ICMP;",
-    opts: ["ipconfig", "ping", "tracert", "netstat"],
-    correct: 1
-  },
-  {
-    q: "Η ασφαλής έκδοση του HTTP είναι:",
-    opts: ["FTP", "HTTPS", "SMTP", "POP3"],
-    correct: 1
-  },
-  {
-    q: "Ποιος αλγόριθμος κρυπτογράφησης χρησιμοποιείται κυρίως για ασφαλή επικοινωνία στο internet;",
-    opts: ["MD5", "SHA-1", "AES / RSA (SSL/TLS)", "DES"],
-    correct: 2
-  },
-  {
-    q: "Σε ψηφιακό κύκλωμα, η πύλη AND εξάγει '1' όταν:",
-    opts: ["Τουλάχιστον μια είσοδος είναι '1'", "Όλες οι είσοδοι είναι '1'", "Καμία είσοδος δεν είναι '1'", "Τουλάχιστον μια είσοδος είναι '0'"],
-    correct: 1
-  },
-  {
-    q: "Σε ψηφιακό κύκλωμα, η πύλη OR εξάγει '0' όταν:",
-    opts: ["Όλες οι είσοδοι είναι '0'", "Τουλάχιστον μια είσοδος είναι '1'", "Όλες οι είσοδοι είναι '1'", "Η πρώτη είσοδος είναι '0'"],
-    correct: 0
-  },
-  {
-    q: "Η πύλη NOT εκτελεί:",
-    opts: ["Λογική πρόσθεση", "Λογικό πολλαπλασιασμό", "Αναστροφή (inversion) του σήματος", "Σύγκριση δύο εισόδων"],
-    correct: 2
-  },
-  {
-    q: "Ποια πύλη λειτουργεί ως AND ακολουθούμενη από NOT;",
-    opts: ["NOR", "NAND", "XNOR", "XOR"],
-    correct: 1
-  },
-  {
-    q: "Ποια πύλη λειτουργεί ως OR ακολουθούμενη από NOT;",
-    opts: ["NOR", "NAND", "XNOR", "XOR"],
-    correct: 0
-  }
-];
+<div class="progress-container">
+  <div class="progress-bar" id="progressBar" style="width:0%"></div>
+</div>
 
-// Quiz state
-let questions = [];
+<div id="quizArea" class="question-card"></div>
+<div id="finishArea" class="finish-screen hidden"></div>
+
+<script>
+ // ===================== QUESTION BANK =====================
+// Ξεκινάμε το array "questions" με τις πρώτες 10 ερωτήσεις από το PDF
+
+const questions = [];
+
+// Ερώτηση 1 - True/False (4 υποερωτήσεις)
+questions.push(
+  {
+    questionNumber: "1α",
+    type: "tf",
+    text: "Σύμβαση εργασίας, είναι η συμφωνία με την οποία ένα άτομο αναλαμβάνει να επιτελέσει ένα συγκεκριμένο έργο για άλλο άτομο ή φορέα σε καθορισμένο ή αόριστο χρονικό διάστημα αντί συμφωνημένης αμοιβής.",
+    answer: true,
+    explanation: "Σωστό. Αυτός είναι ο ορισμός σύμβασης εργασίας.[file:1]"
+  },
+  {
+    questionNumber: "1β",
+    type: "tf",
+    text: "Ο κύκλος προκήρυξης ενός διαγωνισμού ανάθεσης έργου περιλαμβάνει το αντικείμενο του διαγωνισμού.",
+    answer: true,
+    explanation: "Σωστό. Το αντικείμενο περιλαμβάνεται στον κύκλο προκήρυξης.[file:1]"
+  },
+  {
+    questionNumber: "1γ",
+    type: "tf",
+    text: "Η ανάθεση και η ανάληψη της εκτέλεσης ενός τεχνικού έργου περιλαμβάνει άμεσα τη συγγραφή επαγγελματικών υποχρεώσεων.",
+    answer: true,
+    explanation: "Σωστό. Η ανάθεση συνεπάγεται επαγγελματικές υποχρεώσεις.[file:1]"
+  },
+  {
+    questionNumber: "1δ",
+    type: "tf",
+    text: "Ο ηλεκτρολόγος φέρει μόνο αστικές και ποινικές ευθύνες.",
+    answer: false,
+    explanation: "Λάθος. Ο ηλεκτρολόγος φέρει αστικές, ποινικές και πειθαρχικές ευθύνες.[file:1]"
+  },
+
+  // Ερώτηση 2 - Multiple Choice
+  {
+    questionNumber: "2",
+    type: "mc",
+    text: "Η αποζημίωση που θα λάβει ένας εργάτης για την απόλυσή του, μετά από χρόνο υπηρεσίας 2 μήνες έως 1 έτος, είναι:",
+    options: ["5 ημερομίσθια", "15 ημερομίσθια", "Μισθός ενός μήνα", "Μισθοί 2 μηνών"],
+    answer: 0,
+    explanation: "Σωστό: 15 ημερομίσθια για 2 μήνες έως 1 έτος υπηρεσίας.[file:1]"
+  },
+
+  // Ερώτηση 3 - Multiple Choice
+  {
+    questionNumber: "3",
+    type: "mc",
+    text: "Η αποζημίωση που θα λάβει ένας υπάλληλος για την απόλυσή του, μετά από χρόνο υπηρεσίας 10 συμπληρωμένων ετών είναι:",
+    options: ["60 ημερομίσθια", "120 ημερομίσθια", "Μισθός 1 μήνα", "Μισθοί 6 μηνών"],
+    answer: 3,
+    explanation: "Σωστό: Μισθοί 6 μηνών"
+  },
+
+  // Ερώτηση 4 - Multiple Choice
+  {
+    questionNumber: "4",
+    type: "mc",
+    text: "Η απόκτηση επαγγελματικής άδειας συνάδει με:",
+    options: [
+      "Την απόκτηση προσόντων",
+      "Το δικαίωμα άσκησης επαγγέλματος",
+      "Τη συγγραφή επαγγελματικών υποχρεώσεων",
+      "Τα ζητήματα αμοιβής"
+    ],
+    answer: 2,
+    explanation: "Σωστό: η άδεια δίνει το δικαίωμα άσκησης επαγγέλματος.[file:1]"
+  },
+
+  // Ερώτηση 5 - Multiple Choice
+  {
+    questionNumber: "5",
+    type: "mc",
+    text: "Ο κλειστός φάκελος προσφοράς σε ένα διαγωνισμό έργου περιλαμβάνει:",
+    options: [
+      "Την εγγύηση συμμετοχής στο διαγωνισμό",
+      "Το δικαίωμα άσκησης επαγγέλματος",
+      "Το χρονοδιάγραμμα κατασκευής του έργου",
+      "Τα στοιχεία για το κύκλο εργασιών της τελευταίας πενταετίας"
+    ],
+    answer: 0,
+    explanation: "Σωστό: ο κλειστός φάκελος περιέχει την εγγύηση συμμετοχής.[file:1]"
+  },
+
+  // Ερώτηση 6 - Fill in the blanks
+  {
+    questionNumber: "6",
+    type: "fill",
+    text: "Η επαγγελματική (1) ______ του (2) ______ καθορίζεται από την επαγγελματική (3) ______ και δηλώνει ότι είναι (4) ______ στα πλαίσια της (5) ______ του δραστηριότητας. Η επαγγελματική (6) ______ αποτελεί ένα κώδικα (7) ______, που λειτουργεί πρωτίστως με τους κανόνες της (8) ______ και μετέπειτα του (9) ______.",
+    answer: [
+      "ευθύνη", "ηλεκτρολόγου", "δεοντολογίας",
+      "υπόλογος", "επαγγελματικής", "ευθύνη",
+      "συμπεριφοράς", "ηθικής", "κέρδους"
+    ],
+    explanation: "Σωστές λέξεις: ευθύνη, ηλεκτρολόγου, δεοντολογίας, υπόλογος, επαγγελματικής, ευθύνη, συμπεριφοράς, ηθικής, κέρδους.[file:1]"
+  },
+
+  // Ερώτηση 7 - Matching (επιλογή βασικών αντιστοιχίσεων)
+  {
+    questionNumber: "7",
+    type: "match",
+    text: "Αντιστοιχίστε τις διευθύνσεις με τις αρμοδιότητες:",
+    matches: [
+      {"Διεύθυνση Μάρκετινγκ": "δ. Διαφήμιση προϊόντων"},
+      {"Διεύθυνση Έρευνας και Αναπτυξης": "στ. Παραγωγή νέων προϊόντων"},
+      {"Διεύθυνση Οικονομικών Υπηρεσιών": "α. Παρακράτηση φόρων και απόδοση στο κράτος"},
+      {"Διεύθυνση Προσωπικού": "β. Προσλήψεις – απολύσεις"},
+      {"Διεύθυνση Παραγωγής": "θ. Καθορισμός ρυθμού παραγωγής προϊόντων"}
+    ],
+    explanation: " "
+  },
+
+  // Ερώτηση 8 - Matching (συνέχεια)
+  {
+    questionNumber: "8",
+    type: "match",
+    text: "Αντιστοιχίστε λειτουργίες με διευθύνσεις:",
+    matches: [
+      {"Αξιολόγηση εργασίας προσωπικού": "δ. Διεύθυνση Προσωπικού"},
+      {"Φορολογικά θέματα": "γ. Διεύθυνση Οικονομικών Υπηρεσιών"},
+      {"Διαφήμιση και Πωλήσεις": "α. Διεύθυνση Μάρκετινγκ"},
+      {"Παραγωγή νέων προϊόντων": "β. Διεύθυνση Έρευνας και Αναπτυξης"},
+      {"Ρυθμός παραγωγής προϊόντων": "ζ. Διεύθυνση Παραγωγής"}
+    ],
+    explanation: "Σωστές αντιστοιχίσεις λειτουργιών με διευθύνσεις.[file:1]"
+  },
+
+  // Ερώτηση 9 - Fill in the blanks
+  {
+    questionNumber: "9",
+    type: "fill",
+    text: "Επιχείρηση είναι μια (1) ______ μονάδα που με το συνδυασμό των συντελεστών (2) ______ (φυσικοί πόροι, (3) ______, (4) ______.) παράγει (5) ______ ή (6) ______ για την κάλυψη (7) ______. Βασικός στόχος μιας επιχείρησης είναι το (8) ______.",
+    answer: [
+      "οικονομική", "παραγωγής", "εργασία", "κεφάλαιο",
+      "αγαθά", "υπηρεσίες", "αναγκών", "κέρδος"
+    ],
+    explanation: "Σωστές λέξεις: οικονομική, παραγωγής, εργασία, κεφάλαιο, αγαθά, υπηρεσίες, αναγκών, κέρδος.[file:1]"
+  },
+
+  // Ερώτηση 10 - Multiple Choice
+  {
+    questionNumber: "10",
+    type: "mc",
+    text: "Σε μια επιχείρηση, ο καταμερισμός εργασίας αναφέρεται:",
+    options: [
+      "Στην κατανομή ενός έργου σε περισσότερα από ένα άτομα",
+      "Στην εξειδίκευση των εργαζομένων σε συγκεκριμένο τμήμα της εργασίας",
+      "Στην επαγγελματική επιμόρφωση για την διεκπεραίωση του συγκεκριμένου έργου",
+      "Στην ανάθεση του συνόλου του έργου στον πιο ικανό εργαζόμενο"
+    ],
+    answer: 0,
+    explanation: " "
+  },
+  
+  {
+  questionNumber: "11",
+  type: "tf",
+  text: "Το οργανόγραμμα μιας επιχείρησης καταγράφει τις βασικές αρμοδιότητες ανά επίπεδο ιεραρχίας και προσδιορίζει τις σχέσεις εξουσίας-ευθύνης.",
+  answer: "Σ",
+  explanation: "Το οργανόγραμμα αποτυπώνει τη δομή, τις αρμοδιότητες και τις σχέσεις εξουσίας και ευθύνης."
+},
+{
+  questionNumber: "12",
+  type: "tf",
+  text: "Σε μια επιχείρηση, με βάση το μοντέλο γραμμικής εξουσίας ο κάτοχος μιας θέσης εποπτεύεται, καθοδηγείται και λογοδοτεί σε έναν μόνο προϊστάμενο.",
+  answer: "Σ",
+  explanation: "Στο γραμμικό μοντέλο εξουσίας κάθε εργαζόμενος αναφέρεται σε έναν μόνο προϊστάμενο."
+},
+{
+  questionNumber: "13",
+  type: "tf",
+  text: "Σε μια επιχείρηση, ο ρόλος της επιτελικής σχέσης εξουσίας είναι καθαρά συμβουλευτικός και δεν επιτρέπει το δικαίωμα άσκησης εξουσίας.",
+  answer: "Σ",
+  explanation: "Η επιτελική εξουσία έχει συμβουλευτικό χαρακτήρα χωρίς δικαίωμα άμεσης επιβολής εντολών."
+},
+{
+  questionNumber: "14",
+  type: "ordering",
+  text: "Να διατάξετε με τη σωστή σειρά τα βήματα της διαδικασίας σχεδιασμού μάρκετινγκ μιας επιχείρησης.",
+  answer: ["δ", "α", "β", "στ", "γ", "ε", "ζ"],
+  explanation: "Η σωστή σειρά είναι: Έρευνα και συλλογή δεδομένων → Ανάλυση δεδομένων → Διαμόρφωση στόχων → Καταγραφή σχεδίου → Πραγματοποίηση δράσεων → Παρακολούθηση & αξιολόγηση → Διορθωτικές κινήσεις."
+},
+{
+  questionNumber: "15",
+  type: "matching",
+  text: "Αντιστοίχιση γεωμετρικών σχημάτων με τη σημασία τους.",
+  answer: {
+    "1": "γ",
+    "2": "α",
+    "3": "δ",
+    "4": "β"
+  },
+  explanation: "Τρίγωνο: προειδοποίηση, Κύκλος με κόκκινο: απαγόρευση, Μπλε κύκλος: υποχρέωση, Πράσινο ορθογώνιο/τετράγωνο: διάσωση ή βοήθεια."
+},
+{
+  questionNumber: "16",
+  type: "matching",
+  text: "Αντιστοίχιση σημάτων με τη σημασία τους.",
+  answer: {
+    "1": "β",
+    "2": "γ",
+    "3": "ε",
+    "4": "α",
+    "5": "δ"
+  },
+  explanation: "Αντιστοίχιση με βάση τα διεθνή πρότυπα σήμανσης ασφαλείας."
+},
+{
+  questionNumber: "17",
+  type: "mc",
+  text: "Η σήμανση των κινδύνων από εμπόδια και των επικίνδυνων σημείων στο εσωτερικό των κτιρίων γίνεται με:",
+  options: [
+    "Μπλε χρώμα που εναλλάσσεται με μαύρο",
+    "Κόκκινο χρώμα που εναλλάσσεται με μαύρο",
+    "Πράσινο χρώμα που εναλλάσσεται με άσπρο",
+    "Κίτρινο χρώμα που εναλλάσσεται με μαύρο"
+  ],
+  answer: 3,
+  explanation: "Η σήμανση επικίνδυνων σημείων γίνεται με κίτρινο και μαύρο."
+},
+{
+  questionNumber: "18",
+  type: "mc",
+  text: "Τα σήματα προειδοποίησης:",
+  options: [
+    "Έχουν κυκλικό σχήμα με κόκκινη γραμμή",
+    "Έχουν σχήμα τετράγωνο ή ορθογώνιο",
+    "Έχουν σχήμα ισόπλευρου τριγώνου με την μια κορυφή προς τα πάνω",
+    "Έχουν κυκλικό σχήμα μπλε χρώματος"
+  ],
+  answer: 2,
+  explanation: "Τα σήματα προειδοποίησης είναι τριγωνικά με κορυφή προς τα πάνω."
+},
+{
+  questionNumber: "19",
+  type: "mc",
+  text: "Τα σήματα υποχρέωσης:",
+  options: [
+    "Έχουν χρώμα κίτρινο",
+    "Έχουν τριγωνικό σχήμα",
+    "Προειδοποιούν για υπαρκτό κίνδυνο",
+    "Υποδεικνύουν την τήρηση μιας συγκεκριμένης συμπεριφοράς"
+  ],
+  answer: 3,
+  explanation: "Τα σήματα υποχρέωσης επιβάλλουν συγκεκριμένη συμπεριφορά (μπλε κυκλικά)."
+},
+{
+  questionNumber: "20",
+  type: "mc",
+  text: "Τα σήματα διάσωσης:",
+  options: [
+    "Έχουν χρώμα κόκκινο",
+    "Έχουν κυκλικό σχήμα",
+    "Η ένδειξη παριστάνεται με άσπρο σύμβολο σε πράσινο φόντο",
+    "Έχουν τριγωνικό σχήμα"
+  ],
+  answer: 2,
+  explanation: "Τα σήματα διάσωσης έχουν πράσινο φόντο με άσπρο σύμβολο."
+},
+  
+  
+  {
+  questionNumber: "21",
+  type: "mc",
+  text: "Η ένταση του ηλεκτρικού ρεύματος γίνεται επικίνδυνη όταν ξεπεράσει:",
+  options: ["100 mA", "75 mA", "50 mA", "30 mA"],
+  answer: 3,
+  explanation: "Ρεύμα άνω των 30 mA μπορεί να προκαλέσει επικίνδυνες επιδράσεις στον άνθρωπο."
+},
+{
+  questionNumber: "22",
+  type: "mc",
+  text: "Σε συνθήκες ξηρασίας, η ηλεκτρική εναλλασσόμενη τάση γίνεται επικίνδυνη όταν ξεπεράσει:",
+  options: ["100 V", "75 V", "50 V", "12 V"],
+  answer: 2,
+  explanation: "Σε ξηρό περιβάλλον τάση άνω των 50 V θεωρείται επικίνδυνη."
+},
+{
+  questionNumber: "23",
+  type: "mc",
+  text: "Άνθρωπος με αντίσταση 10.000 Ω υπό τάση 230V διαρρέεται από ρεύμα:",
+  options: ["23 A", "23 mA", "230 mA", "43,47 A"],
+  answer: 1,
+  explanation: "I = V/R = 230/10000 = 0,023 A = 23 mA."
+},
+{
+  questionNumber: "24",
+  type: "tf",
+  text: "Το βρεγμένο δέρμα παρουσιάζει μεγαλύτερη αντίσταση συγκριτικά με το στεγνό.",
+  answer: "Λ",
+  explanation: "Το βρεγμένο δέρμα έχει μικρότερη αντίσταση."
+},
+{
+  questionNumber: "25",
+  type: "tf",
+  text: "Ένα παχύ σώμα παρουσιάζει μικρότερη αντίσταση συγκριτικά με ένα αδύνατο.",
+  answer: "Λ",
+  explanation: " "
+},
+{
+  questionNumber: "26",
+  type: "tf",
+  text: "Η παλάμη ενός ανθρώπου παρουσιάζει μικρότερη αντίσταση από το πέλμα του.",
+  answer: "Λ",
+  explanation: "Η παλάμη του ανθρώπου έχει συνήθως μεγαλύτερη επιφάνεια επαφής από το πέλμα (ιδιαίτερα αν μιλάμε για το πέλμα που πατά σε μικρότερη περιοχή)."
+},
+{
+  questionNumber: "27",
+  type: "tf",
+  text: "Αν άτομο αγγίξει ηλεκτροφόρο καλώδιο και γειωμένο αντικείμενο, ο κίνδυνος μειώνεται.",
+  answer: "Λ",
+  explanation: "Ο κίνδυνος αυξάνεται λόγω κλεισίματος κυκλώματος μέσω του σώματος."
+},
+{
+  questionNumber: "28",
+  type: "tf",
+  text: "Αν άτομο αγγίξει φάση και ουδέτερο, θα διαπεραστεί από ρεύμα.",
+  answer: "Σ",
+  explanation: "Το ρεύμα θα διαπεράσει το σώμα προκαλώντας ηλεκτροπληξία."
+},
+{
+  questionNumber: "29",
+  type: "tf",
+  text: "Η ηλεκτρική αντίσταση του σώματος εξαρτάται και από τη διαδρομή του ρεύματος.",
+  answer: "Σ",
+  explanation: "Η διαδρομή επηρεάζει την αντίσταση και την επικινδυνότητα."
+},
+{
+  questionNumber: "30",
+  type: "mc",
+  text: "Άνθρωπος με 1000Ω υπό 40V κινδυνεύει γιατί:",
+  options: [
+    "Η τάση ξεπερνά το όριο ασφαλείας",
+    "Η αντίσταση είναι πολύ μεγάλη",
+    "Το ρεύμα είναι μεγαλύτερο από 30 mA",
+    "Το ρεύμα είναι 40 A"
+  ],
+  answer: 2,
+  explanation: "I = 40/1000 = 0,04 A = 40 mA > 30 mA."
+},
+{
+  questionNumber: "31",
+  type: "tf",
+  text: "Η σοβαρότητα ηλεκτροπληξίας εξαρτάται από ένταση, χρόνο και διαδρομή.",
+  answer: "Σ",
+  explanation: "Και οι τρεις παράγοντες επηρεάζουν τη σοβαρότητα."
+},
+{
+  questionNumber: "32",
+  type: "tf",
+  text: "Ο χρόνος επαφής παίζει ασήμαντο ρόλο.",
+  answer: "Λ",
+  explanation: "Ο χρόνος επαφής είναι κρίσιμος παράγοντας."
+},
+{
+  questionNumber: "33",
+  type: "mc",
+  text: "Για πυρκαγιά κοντά σε ηλεκτρικές συσκευές χρησιμοποιούμε:",
+  options: [
+    "Πυροσβεστήρες νερού",
+    "Πυροσβεστήρες αφρού",
+    "Πυροσβεστήρες CO2",
+    "Άμμο"
+  ],
+  answer: 2,
+  explanation: "Το CO2 είναι κατάλληλο για ηλεκτρικές πυρκαγιές."
+},
+{
+  questionNumber: "34",
+  type: "mc",
+  text: "Πυροσβεστήρας με ένδειξη Α είναι για:",
+  options: [
+    "Αέρια καύσιμα",
+    "Στερεά καύσιμα",
+    "Υγρά καύσιμα",
+    "Μέταλλα"
+  ],
+  answer: 1,
+  explanation: "Κατηγορία Α αφορά στερεά καύσιμα."
+},
+{
+  questionNumber: "35",
+  type: "mc",
+  text: "Η εύκαμπτη καλωδίωση επιτρέπεται:",
+  options: [
+    "Σε καλώδια προεκτάσεων",
+    "Να κρύβεται σε τοίχους",
+    "Να κρύβεται σε σωληνώσεις",
+    "Σε εξωτερικές επιφάνειες"
+  ],
+  answer: 0,
+  explanation: "Χρησιμοποιείται σε μπαλαντέζες."
+},
+{
+  questionNumber: "36",
+  type: "mc",
+  text: "Ο ουδέτερος αγωγός έχει:",
+  options: [
+    "Δυναμικό 0V (γειωμένος)",
+    "230V",
+    "400V",
+    "12V"
+  ],
+  answer: 0,
+  explanation: "Ο ουδέτερος είναι γειωμένος (0V)."
+},
+{
+  questionNumber: "37",
+  type: "tf_multiple",
+  text: "Χαρακτηρισμός προτάσεων για ηλεκτρικό τόξο.",
+  answer: {
+    "α": "Σ",
+    "β": "Λ",
+    "γ": "Λ",
+    "δ": "Λ"
+  },
+  explanation: "Το τόξο εκπέμπει υψηλή θερμότητα και μπορεί να προκαλέσει έκρηξη."
+},
+{
+  questionNumber: "38",
+  type: "ordering",
+  text: "Σωστή σειρά ενεργειών σε ηλεκτροπληξία.",
+  answer: ["γ", "β", "α", "δ", "ε"],
+  explanation: "Διακοπή ρεύματος → Κλήση ΕΚΑΒ → Υλικά → ΚΑΡΠΑ → Παραμονή δίπλα στο θύμα."
+},
+{
+  questionNumber: "39",
+  type: "tf_multiple",
+  text: "Χαρακτηρισμός προτάσεων.",
+  answer: {
+    "β": "Λ",
+    "γ": "Λ",
+    "δ": "Σ"
+  },
+  explanation: "Το ρελέ διαφυγής προστατεύει από ηλεκτροπληξία."
+},
+{
+  questionNumber: "40",
+  type: "tf",
+  text: "Το ρελέ διαφυγής ανιχνεύει διαρροή προς γη και διακόπτει.",
+  answer: "Σ",
+  explanation: "Αυτός είναι ο ρόλος του ΔΔΡ."
+},
+{
+  questionNumber: "41",
+  type: "mc",
+  text: "Η σήμανση που απαιτείται στα ΜΑΠ είναι:",
+  options: ["GR", "CE", "ΜΑΠ", "ETS"],
+  answer: 1,
+  explanation: "Υποχρεωτική σήμανση CE."
+},
+{
+  questionNumber: "42",
+  type: "mc",
+  text: "Για προστασία από 17kV επιλέγονται γάντια:",
+  options: ["κλάσης 00", "κλάσης 0", "κλάσης 1", "κλάσης 2"],
+  answer: 3,
+  explanation: "Κλάση 2 καλύπτει έως 17kV."
+},
+{
+  questionNumber: "43",
+  type: "mc",
+  text: "Κωδικός Μ στα γάντια σημαίνει:",
+  options: [
+    "Αντοχή σε οξέα",
+    "Αντοχή σε έλαια",
+    "Υψηλή μηχανική καταπόνηση",
+    "Χαμηλές θερμοκρασίες"
+  ],
+  answer: 2,
+  explanation: "Το Μ δηλώνει μηχανική αντοχή."
+},
+{
+  questionNumber: "44",
+  type: "mc",
+  text: "Το πρότυπο ΕΛΟΤ HD384 αφορά:",
+  options: [
+    "Ηλεκτρικές εγκαταστάσεις",
+    "Μηχανολογικές",
+    "Στατικές μελέτες",
+    "Αρχιτεκτονικές"
+  ],
+  answer: 0,
+  explanation: "Αφορά ηλεκτρικές εγκαταστάσεις."
+},
+{
+  questionNumber: "45",
+  type: "tf",
+  text: "Η προστασία από έμμεση επαφή αφορά επαφή με ενεργά μέρη σε κανονική λειτουργία.",
+  answer: "Σ",
+  explanation: " "
+},
+{
+  questionNumber: "46",
+  type: "tf",
+  text: "Αρχή εγκατάστασης είναι σημείο εναλλακτικής τροφοδότησης.",
+  answer: "Λ",
+  explanation: "Αρχή είναι το σημείο παροχής από κύρια τροφοδότηση."
+},
+{
+  questionNumber: "47",
+  type: "tf",
+  text: "Λαμβάνονται υπόψη μόνο οι συνθήκες λειτουργίας.",
+  answer: "Λ",
+  explanation: "Λαμβάνονται και εξωτερικές συνθήκες."
+},
+{
+  questionNumber: "48",
+  type: "tf",
+  text: "Εφεδρική τροφοδότηση λειτουργεί όταν η κύρια λειτουργεί κανονικά.",
+  answer: "Σ",
+  explanation: "Λειτουργεί όταν η κύρια αποτυγχάνει."
+},
+{
+  questionNumber: "49",
+  type: "tf",
+  text: "Ο ΕΛΟΤ παράγει πρότυπα και απονέμει σήματα ποιότητας.",
+  answer: "Σ",
+  explanation: "Αυτός είναι ο ρόλος του ΕΛΟΤ."
+},
+{
+  questionNumber: "50",
+  type: "tf_multiple",
+  text: "Εφαρμογή ΕΛΟΤ HD384.",
+  answer: {
+    "α": "Σ",
+    "β": "Σ",
+    "γ": "Λ",
+    "δ": "Σ",
+    "ε": "Λ"
+  },
+  explanation: "Εφαρμόζεται σε κατοικίες, εμπορικά και βιομηχανικά κτίρια, όχι σε έλξη ή πλοία."
+},
+  
+  {
+  questionNumber: "51",
+  type: "tf",
+  text: "Οι επιχειρήσεις που παράγουν μέσα ατομικής προστασίας είναι υποχρεωμένες να αναγράφουν πάνω στα προϊόντα την σήμανση CE.",
+  answer: "Σ",
+  explanation: "Η σήμανση CE είναι υποχρεωτική για τα ΜΑΠ που διατίθενται στην αγορά."
+},
+{
+  questionNumber: "52",
+  type: "tf",
+  text: "Η σήμανση CE αποτελεί δήλωση ότι το προϊόν δεν συμμορφώνεται με τις απαιτήσεις.",
+  answer: "Λ",
+  explanation: "Η σήμανση CE δηλώνει συμμόρφωση με τις απαιτήσεις."
+},
+{
+  questionNumber: "53",
+  type: "tf",
+  text: "Η χρήση του προτύπου IEC επιβεβαιώνει ότι το προϊόν παράγεται με βάση τα ελληνικά πρότυπα.",
+  answer: "Λ",
+  explanation: "Το IEC είναι διεθνές πρότυπο, όχι αποκλειστικά ελληνικό."
+},
+{
+  questionNumber: "54",
+  type: "tf",
+  text: "Τα διεθνή πρότυπα έχουν χαρακτήρα συστάσεων και η εφαρμογή τους είναι προαιρετική.",
+  answer: "Σ",
+  explanation: "Τα διεθνή πρότυπα λειτουργούν ως συστάσεις, εκτός αν ενσωματωθούν σε κανονισμούς."
+},
+{
+  questionNumber: "55",
+  type: "tf",
+  text: "Τα Ευρωπαϊκά Πρότυπα υιοθετούνται υποχρεωτικά από τα κράτη-μέλη και υπερισχύουν των εθνικών.",
+  answer: "Σ",
+  explanation: "Τα Ευρωπαϊκά πρότυπα αντικαθιστούν τα αντικρουόμενα εθνικά."
+},
+{
+  questionNumber: "56",
+  type: "mc",
+  text: "Το πρότυπο ETS αφορά:",
+  options: [
+    "Ηλεκτροτεχνικές εφαρμογές",
+    "Τηλεπικοινωνίες",
+    "Μηχανολογικές εφαρμογές",
+    "Στατικές μελέτες"
+  ],
+  answer: 1,
+  explanation: "Το ETS αφορά τηλεπικοινωνιακά πρότυπα."
+},
+{
+  questionNumber: "57",
+  type: "mc",
+  text: "Σε κρίσιμο επαγγελματικό πρόβλημα ενημερώνετε:",
+  options: [
+    "Τον ανώτερο στην ιεραρχία",
+    "Λύνω μόνος/μόνη το πρόβλημα",
+    "Συνάδελφο με εμπειρία",
+    "Τον προϊστάμενο του τμήματος"
+  ],
+  answer: 3,
+  explanation: "Ακολουθείται η ιεραρχική δομή και ενημερώνεται ο άμεσος προϊστάμενος."
+},
+{
+  questionNumber: "58",
+  type: "mc",
+  text: "Αν ο πελάτης απαιτεί χαμηλό κόστος εγκατάστασης:",
+  options: [
+    "Αρνείται την κατασκευή",
+    "Συμμορφώνεται ανεξαρτήτως κανονισμών",
+    "Τεκμηριώνει τις απαιτήσεις βάσει κανονισμών",
+    "Η οικονομική εγκατάσταση προέχει"
+  ],
+  answer: 2,
+  explanation: "Η εγκατάσταση πρέπει να πληροί κανονισμούς ανεξαρτήτως κόστους."
+},
+{
+  questionNumber: "59",
+  type: "fill",
+  text: "Συμπλήρωση κενών για την επιχειρησιακή επικοινωνία.",
+  answer: [
+    "επικοινωνία",
+    "εργαζόμενους",
+    "στελέχη",
+    "διοίκησης",
+    "εσωτερική",
+    "επιχειρησιακή",
+    "πελάτες",
+    "προμηθευτές",
+    "κράτος",
+    "εξωτερική"
+  ],
+  explanation: "Διαχωρισμός εσωτερικής και εξωτερικής επιχειρησιακής επικοινωνίας."
+},
+{
+  questionNumber: "60",
+  type: "matching",
+  text: "Τυπική και Άτυπη μορφή επικοινωνίας.",
+  answer: {
+    "1": "Τυπική",
+    "2": "Άτυπη",
+    "3": "Άτυπη",
+    "4": "Άτυπη",
+    "5": "Τυπική"
+  },
+  explanation: "Η τυπική επικοινωνία ακολουθεί ιεραρχία και κανόνες."
+},
+
+{
+  questionNumber: "64",
+  type: "tf_multiple",
+  text: "Χαρακτηρισμός προτάσεων σχεδίου.",
+  answer: {
+    "Α": "Σ",
+    "Β": "Λ",
+    "Γ": "Σ",
+    "Δ": "Λ"
+  },
+  explanation: " "
+},
+ 
+{
+  questionNumber: "76",
+  type: "tf",
+  text: "Ο ηλεκτρικός διαχωρισμός περιγράφεται με μετασχηματιστές απομόνωσης.",
+  answer: "Σ",
+  explanation: "Ο διαχωρισμός επιτυγχάνεται με Μ/Σ απομόνωσης."
+},
+{
+  questionNumber: "77",
+  type: "tf",
+  text: "Κατά τον ηλεκτρικό διαχωρισμό το κύκλωμα πρέπει να γειώνεται.",
+  answer: "Λ",
+  explanation: "Το διαχωρισμένο κύκλωμα δεν γειώνεται."
+},
+{
+  questionNumber: "78",
+  type: "tf",
+  text: "Ως φάση απαγορεύεται η χρήση αγωγού γκρι.",
+  answer: "Λ",
+  explanation: "Το γκρι επιτρέπεται ως φάση."
+},
+{
+  questionNumber: "79",
+  type: "fill",
+  text: "Συμπλήρωση κειμένου για βρόχο σφάλματος.",
+  answer: [
+    "γειώσεων",
+    "σφάλμα",
+    "ενεργών",
+    "φάσης"
+  ],
+  explanation: "Περιγραφή δημιουργίας βρόχου σφάλματος."
+},
+{
+  questionNumber: "80",
+  type: "tf",
+  text: "Αν οι μετρήσεις γείωσης έχουν διακύμανση >5% πρέπει να επαναληφθούν.",
+  answer: "Σ",
+  explanation: "Μεγάλη απόκλιση απαιτεί επανάληψη μετρήσεων."
+},
+
+{
+  questionNumber: "81",
+  type: "mc",
+  text: "Έστω ότι σε κάποιο σημείο των μεταλλικών σωληνώσεων της κεντρικής θέρμανσης ακουμπάει το φθαρμένο καλώδιο μιας συσκευής η οποία βρίσκεται σε λειτουργία. Σε ποια από τις ακόλουθες περιπτώσεις δεν θα πάθουμε ηλεκτροπληξία όταν ακουμπήσουμε τις, υπό τάση, σωληνώσεις;",
+  options: [
+    "Αν έχουμε γειώσει τη συσκευή",
+    "Αν οι σωληνώσεις του καλοριφέρ αποτελούν μέρος ισοδυναμικής επιφάνειας",
+    "Αν τα χέρια μας είναι ξηρά",
+    "Αν έχει τοποθετηθεί στον ηλεκτρικό πίνακα η κατάλληλη ασφάλεια"
+  ],
+  answer: 2,
+  explanation: " "
+},
+{
+  questionNumber: "82",
+  type: "mc",
+  text: "Σύμφωνα με τους κανονισμούς, ο επανέλεγχος της ΕΗΕ μιας κατοικίας:",
+  options: [
+    "πρέπει να γίνεται κάθε 2 χρόνια",
+    "πρέπει να γίνεται κάθε 7 χρόνια",
+    "πρέπει να γίνεται κάθε 14 χρόνια",
+    "δεν είναι υποχρεωτικός"
+  ],
+  answer: 2,
+  explanation: " "
+},
+{
+  questionNumber: "83",
+  type: "mc",
+  text: "Η ελάχιστη διατομή αγωγού προστασίας (PE) σε σταθερή εγκατάσταση είναι:",
+  options: ["1 mm²", "1,5 mm²", "2,5 mm²", "4 mm²"],
+  answer: 1,
+  explanation: "Η ελάχιστη διατομή είναι 1,5 mm² (ανάλογα με τον τρόπο τοποθέτησης)."
+},
+{
+  questionNumber: "84",
+  type: "mc",
+  text: "Σύμφωνα με τους κανονισμούς, ο επανέλεγχος της ΕΗΕ σε κλειστούς επαγγελματικούς χώρους που δεν έχουν εύφλεκτα υλικά:",
+  options: [
+    "πρέπει να γίνεται κάθε 2 χρόνια",
+    "πρέπει να γίνεται κάθε 7 χρόνια",
+    "πρέπει να γίνεται κάθε 14 χρόνια",
+    "δεν είναι υποχρεωτικός"
+  ],
+  answer: 1,
+  explanation: "Το πράσινο-κίτρινο χρησιμοποιείται αποκλειστικά για PE."
+},
+{
+  questionNumber: "85",
+  type: "tf",
+  text: "Ο ουδέτερος αγωγός έχει χρώμα μπλε.",
+  answer: "Σ",
+  explanation: "Το μπλε χρησιμοποιείται για τον ουδέτερο."
+},
+{
+  questionNumber: "61",
+  type: "mc",
+  text: "Το ρελέ διαφυγής προστατεύει κυρίως από:",
+  options: [
+    "Υπερένταση",
+    "Βραχυκύκλωμα",
+    "Ηλεκτροπληξία",
+    "Υπέρταση"
+  ],
+  answer: 2,
+  explanation: "Το ΔΔΡ προστατεύει από ρεύματα διαρροής προς γη."
+},
+{
+  questionNumber: "86",
+  type: "tf",
+  text: "Δυο αγωγοί φάσης με διατομή 1,5 mm2 ο καθένας, επιτρέπεται να έχουν κοινό ουδέτερο αγωγό με διατομή 2,5 mm2.",
+  answer: "Λ",
+  explanation: "Το ΔΔΡ δεν προστατεύει από υπερένταση."
+},
+
+{
+  questionNumber: "87",
+  type: "mc",
+  text: "Να εντοπίσετε τη θέση διαρροής προς τη γη σε τριφασικό υπόγειο καλώδιο μήκους 3 Km, αν η χρησιμοποιούμενη για το σκοπό αυτό γέφυρα Murrey ισορροπεί με αντιστάσεις τιμών R1 = 200 Ω και R2 = 100 Ω:",
+  options: [
+    "2 Km",
+    "4 Km",
+    "6 Km",
+    "8 Km"
+  ],
+  answer: 0,
+  explanation: "Το ΔΔΡ δεν προστατεύει από υπερένταση."
+},
+{
+  questionNumber: "88",
+  type: "mc",
+  text: "Αναλογικό βολτόμετρο έχει μέγιστη τιμή κλίμακας 150 V, ενώ μετράμε στην περιοχή μέτρησης των 300 V. Αν η βελόνα του οργάνου σταματήσει στα 100 V, τότε το μετρούμενο μέγεθος θα είναι:",
+  options: ["50 V", "100 V", "150 V", "200 V"],
+  answer: 3,
+  explanation: " "
+},
+{
+  questionNumber: "89",
+  type: "mc",
+  text: "Αναλογικό βολτόμετρο κλάσης 2,5 έχει περιοχή μέτρησης 300 V. Το μέγιστο απόλυτο σφάλμα του οργάνου θα είναι:",
+   options: [
+    "2,5 V",
+    "5 V",
+    "7,5 V",
+    "10 V"
+  ],
+  answer: 2,
+  explanation: "Η βασική μόνωση αποτρέπει την άμεση επαφή."
+},
+{
+  questionNumber: "90",
+  type: "tf",
+  text: "Ο έλεγχος φωτισμού στα κλιμακοστάσια γίνεται με :",
+   options: [
+    "α. διακόπτες αλλέ ρετούρ ακραίους",
+    "β. διακόπτες αλλέ ρετούρ μεσαίους",
+    "γ. μπουτόνς",
+    "δ. απλούς διακόπτες"
+  ],
+  answer: 2,
+  explanation: "Η έμμεση επαφή προκύπτει από σφάλμα μόνωσης."
+},
+{
+  questionNumber: "91",
+  type: "mc",
+  text: "Σε ποιες από τις παρακάτω περιπτώσεις γίνεται έλεγχος μιας ΕΗΕ:",
+  options: [
+    "α) μετά την αποπεράτωση της ΕΗΕ",
+    "β) μετά από επέκταση ή τροποποίηση της ΕΗΕ",
+    "γ) μετά από βλάβη της ΕΗΕ",
+    "δ) ανά τακτά χρονικά διαστήματα"
+  ],
+  answer: 0,
+  explanation: "Εξισώνει τα δυναμικά για αποφυγή επικίνδυνων τάσεων."
+},
+{
+  questionNumber: "92",
+  type: "tf",
+  text: "Σύμφωνα με τους κανονισμούς, ο επανέλεγχος της ΕΗΕ σε κλειστούς επαγγελματικούς χώρους με εύφλεκτα υλικά:",
+   options: [
+    "πρέπει να γίνεται κάθε 2 χρόνια",
+    "πρέπει να γίνεται κάθε 7 χρόνια",
+    "πρέπει να γίνεται κάθε 14 χρόνια",
+    "δεν είναι υποχρεωτικός"
+  ],
+  answer: 0,
+  explanation: " "
+},
+{
+  questionNumber: "93",
+  type: "tf",
+  text: "Στο φωτισμό κλιμακοστασίου όλα τα φωτιστικά είναι συνδεδεμένα μεταξύ τους σε σειρά.",
+  answer:  "Λ",
+  explanation: " ."
+},
+{
+  questionNumber: "94",
+  type: "tf",
+  text: "Η συστροφή για τον τερματισμό των καλωδίων μιας δομημένης καλωδίωσης δεν πρέπει να είναι μικρότερη από 1,3 cm.",
+  answer: "Λ",
+  explanation: "Η αντίσταση γίνεται πολύ μικρή και το ρεύμα αυξάνεται."
+},
+{
+  questionNumber: "96",
+  type: "tf",
+  text: " Είναι επιτρεπτή η εγκατάσταση ΔΔΡ (Διάταξης Διαφορικού Ρεύματος) σε πίνακα διανομής, έτσι ώστε να λειτουργεί σαν γενικός διακόπτης και να μην απαιτείται η εγκατάσταση ξεχωριστού γενικού διακόπτη.",
+  answer:  "Λ",
+  explanation: " ."
+},
+{
+  questionNumber: "96",
+  type: "tf",
+  text: "Το μέγιστο επιτρεπόμενο μήκος του οριζόντιου μέρους του δικτύου δομημένης καλωδίωσης (από τον κατανεμητή έως την πρίζα) είναι 90m.",
+  answer: "Σ",
+  explanation: " "
+},
+{
+  questionNumber: "97",
+  type: "tf",
+  text: "Δεν επιτρέπονται οι κολλήσεις για την προέκταση των καλωδίων Δομημένης Καλωδίωσης.",
+  answer: "Σ",
+  explanation: " "
+},
+{
+  questionNumber: "98",
+  type: "mc",
+  text: "Η ισχύς υπολογίζεται από τη σχέση:",
+  options: ["P=V/I", "P=V·I", "P=I/R", "P=R/V"],
+  answer: 1,
+  explanation: "Η ηλεκτρική ισχύς είναι P=V×I."
+},
+{
+  questionNumber: "99",
+  type: "tf",
+  text: "Η μονάδα μέτρησης της ισχύος είναι το Watt.",
+  answer: "Σ",
+  explanation: "Το Watt (W) είναι μονάδα ισχύος."
+},
+{
+  questionNumber: "100",
+  type: "mc",
+  text: "Η συχνότητα του δικτύου στην Ελλάδα είναι:",
+  options: ["60 Hz", "50 Hz", "400 Hz", "100 Hz"],
+  answer: 1,
+  explanation: "Το δίκτυο λειτουργεί στα 50 Hz."
+},
+{
+  questionNumber: "101",
+  type: "tf",
+  text: "Το εναλλασσόμενο ρεύμα αλλάζει φορά περιοδικά.",
+  answer: "Σ",
+  explanation: "Το AC μεταβάλλει κατεύθυνση και μέγεθος."
+},
+{
+  questionNumber: "102",
+  type: "tf",
+  text: "Το συνεχές ρεύμα έχει σταθερή φορά.",
+  answer: "Σ",
+  explanation: "Το DC διατηρεί σταθερή πολικότητα."
+},
+{
+  questionNumber: "103",
+  type: "mc",
+  text: "Η μονάδα μέτρησης της τάσης είναι:",
+  options: ["Volt", "Ampere", "Ohm", "Farad"],
+  answer: 0,
+  explanation: "Η τάση μετριέται σε Volt (V)."
+},
+{
+  questionNumber: "104",
+  type: "mc",
+  text: "Η μονάδα μέτρησης της έντασης ρεύματος είναι:",
+  options: ["Volt", "Ampere", "Ohm", "Watt"],
+  answer: 1,
+  explanation: "Η ένταση μετριέται σε Ampere (A)."
+},
+{
+  questionNumber: "105",
+  type: "tf",
+  text: "Η ηλεκτρική ενέργεια μετριέται σε kWh.",
+  answer: "Σ",
+  explanation: "Οι κιλοβατώρες μετρούν κατανάλωση ενέργειας."
+},
+{
+  questionNumber: "106",
+  type: "mc",
+  text: "Ο μετρητής κατανάλωσης μετρά:",
+  options: [
+    "Ισχύ",
+    "Ένταση",
+    "Ενέργεια",
+    "Αντίσταση"
+  ],
+  answer: 2,
+  explanation: "Μετρά καταναλισκόμενη ενέργεια (kWh)."
+},
+{
+  questionNumber: "107",
+  type: "tf",
+  text: "Η γείωση μειώνει τον κίνδυνο ηλεκτροπληξίας.",
+  answer: "Σ",
+  explanation: "Οδηγεί το ρεύμα διαρροής προς τη γη."
+},
+{
+  questionNumber: "108",
+  type: "mc",
+  text: "Σε τριφασικό σύστημα η τάση μεταξύ φάσεων είναι:",
+  options: ["230V", "400V", "50V", "12V"],
+  answer: 1,
+  explanation: "Μεταξύ φάσεων είναι 400V."
+},
+{
+  questionNumber: "109",
+  type: "tf",
+  text: "Η τάση μεταξύ φάσης και ουδετέρου είναι 230V.",
+  answer: "Σ",
+  explanation: "Η μονοφασική τάση είναι 230V."
+},
+{
+  questionNumber: "110",
+  type: "mc",
+  text: "Η μονάδα μέτρησης της χωρητικότητας είναι:",
+  options: ["Henry", "Farad", "Ohm", "Tesla"],
+  answer: 1,
+  explanation: "Η χωρητικότητα μετριέται σε Farad."
+},
+{
+  questionNumber: "111",
+  type: "tf",
+  text: "Η μονάδα μέτρησης της επαγωγής είναι το Henry.",
+  answer: "Σ",
+  explanation: "Η αυτεπαγωγή μετριέται σε Henry (H)."
+},
+{
+  questionNumber: "112",
+  type: "mc",
+  text: "Το πολύμετρο μπορεί να μετρήσει:",
+  options: [
+    "Μόνο τάση",
+    "Μόνο ένταση",
+    "Τάση, ένταση και αντίσταση",
+    "Μόνο αντίσταση"
+  ],
+  answer: 2,
+  explanation: "Το πολύμετρο είναι όργανο πολλαπλών μετρήσεων."
+},
+{
+  questionNumber: "113",
+  type: "tf",
+  text: "Η σωστή χρήση οργάνων μέτρησης είναι βασική για την ασφάλεια.",
+  answer: "Σ",
+  explanation: "Αποφεύγονται λανθασμένες ενδείξεις και ατυχήματα."
+},
+{
+  questionNumber: "114",
+  type: "mc",
+  text: "Το IP σε μια συσκευή δηλώνει:",
+  options: [
+    "Τύπο μόνωσης",
+    "Βαθμό προστασίας",
+    "Ισχύ",
+    "Συχνότητα"
+  ],
+  answer: 1,
+  explanation: "Δηλώνει βαθμό προστασίας από σκόνη και νερό."
+},
+{
+  questionNumber: "115",
+  type: "tf",
+  text: "IP44 σημαίνει προστασία από στερεά σώματα και πιτσιλίσματα νερού.",
+  answer: "Σ",
+  explanation: "Ο πρώτος αριθμός αφορά στερεά, ο δεύτερος υγρά."
+},
+{
+  questionNumber: "116",
+  type: "mc",
+  text: "Η υπέρταση μπορεί να προκληθεί από:",
+  options: [
+    "Κεραυνό",
+    "Υπερφόρτωση",
+    "Υγρασία",
+    "Χαμηλή αντίσταση"
+  ],
+  answer: 0,
+  explanation: "Κεραυνικά φαινόμενα προκαλούν υπέρταση."
+},
+{
+  questionNumber: "117",
+  type: "tf",
+  text: "Τα αντικεραυνικά προστατεύουν από παροδικές υπερτάσεις.",
+  answer: "Σ",
+  explanation: "Περιορίζουν την υπέρταση από κεραυνό."
+},
+{
+  questionNumber: "118",
+  type: "mc",
+  text: "Η συνέχεια αγωγού προστασίας ελέγχεται με:",
+  options: [
+    "Αμπερόμετρο",
+    "Ωμόμετρο",
+    "Βολτόμετρο",
+    "Συχνόμετρο"
+  ],
+  answer: 1,
+  explanation: "Ελέγχεται με μέτρηση αντίστασης."
+},
+{
+  questionNumber: "119",
+  type: "tf",
+  text: "Η μικρή αντίσταση στον αγωγό προστασίας είναι επιθυμητή.",
+  answer: "Σ",
+  explanation: "Εξασφαλίζει σωστή λειτουργία προστασίας."
+},
+{
+  questionNumber: "120",
+  type: "mc",
+  text: "Η δοκιμή του ρελέ διαφυγής γίνεται με:",
+  options: [
+    "Διακόπτη",
+    "Κουμπί TEST",
+    "Πολύμετρο",
+    "Αμπερόμετρο"
+  ],
+  answer: 1,
+  explanation: "Το κουμπί TEST ελέγχει τη λειτουργία."
+},
+{
+  questionNumber: "121",
+  type: "tf",
+  text: "Η περιοδική συντήρηση ηλεκτρικής εγκατάστασης είναι υποχρεωτική.",
+  answer: "Σ",
+  explanation: "Απαιτείται για ασφάλεια και κανονιστική συμμόρφωση."
+},
+{
+  questionNumber: "122",
+  type: "mc",
+  text: "Η υπερφόρτωση προκαλεί:",
+  options: [
+    "Μείωση ρεύματος",
+    "Αύξηση θερμοκρασίας αγωγών",
+    "Μείωση ισχύος",
+    "Μείωση τάσης"
+  ],
+  answer: 1,
+  explanation: "Η αυξημένη ένταση θερμαίνει τους αγωγούς."
+},
+{
+  questionNumber: "123",
+  type: "tf",
+  text: "Η σωστή επιλογή διατομής αγωγών αποτρέπει υπερθέρμανση.",
+  answer: "Σ",
+  explanation: "Η επαρκής διατομή μειώνει την πτώση τάσης και θερμότητα."
+},
+{
+  questionNumber: "124",
+  type: "mc",
+  text: "Η πτώση τάσης σε εγκατάσταση πρέπει να είναι:",
+  options: [
+    "Όσο το δυνατόν μεγαλύτερη",
+    "Μηδενική",
+    "Εντός επιτρεπτών ορίων",
+    "Πάνω από 10%"
+  ],
+  answer: 2,
+  explanation: "Πρέπει να τηρούνται τα όρια κανονισμών."
+},
+{
+  questionNumber: "125",
+  type: "tf",
+  text: "Η τήρηση κανονισμών διασφαλίζει την ασφαλή και αξιόπιστη λειτουργία εγκατάστασης.",
+  answer: "Σ",
+  explanation: "Οι κανονισμοί εξασφαλίζουν ασφάλεια και ποιότητα."
+},
+  
+  {
+    questionNumber: "126",
+    type: "mc",
+    text: "Για να πραγματοποιήσουμε ηλεκτρική μανδάλωση δυο κινητήρων στο κύκλωμα ισχύος χρησιμοποιούμε:",
+    options: [
+      "Έναν ηλεκτρονόμο και δυο θερμικά",
+      "Δυο ηλεκτρονόμους και δυο θερμικά",
+      "Δυο ηλεκτρονόμους και ένα θερμικό",
+      "Τρεις ηλεκτρονόμους και ένα θερμικό"
+    ],
+    answer: 1,
+    explanation: "Σωστό: για μανδάλωση δύο κινητήρων χρειάζονται δύο ηλεκτρονόμοι και δύο θερμικά.[file:1]"
+  },
+  {
+    questionNumber: "127",
+    type: "mc",
+    text: "Ένας ασύγχρονος τριφασικός κινητήρας βραχυκυκλωμένου δρομέα λειτουργεί με ονομαστικό ρεύμα 1,4 Α. Θα πρέπει να ρυθμίσουμε το θερμικό του στην κλίμακα:",
+    options: ["0,8–2,2 Α", "0–1,2 Α", "1,5–2,8 Α", "0–1 Α"],
+    answer: 2,
+    explanation: "Σωστό: το θερμικό ρυθμίζεται περίπου 1,1–1,14 φορές το ονομαστικό ρεύμα, δηλαδή 1,5–2,8 Α.[file:1]"
+  },
+  {
+    questionNumber: "128",
+    type: "mc",
+    text: "Για την πραγματοποίηση του κυκλώματος της αλλαγής φοράς περιστροφής ενός τριφασικού κινητήρα χρησιμοποιούμε:",
+    options: ["Έναν ηλεκτρονόμο", "Δύο ηλεκτρονόμους", "Τρεις ηλεκτρονόμους", "Τέσσερις ηλεκτρονόμους"],
+    answer: 1,
+    explanation: "Σωστό: δύο ηλεκτρονόμοι για αλλαγή φοράς (ένας για κάθε κατεύθυνση).[file:1]"
+  },
+  {
+    questionNumber: "129",
+    type: "mc",
+    text: "Σε ένα κύκλωμα αυτοσυγκράτησης δεν χρησιμοποιούμε:",
+    options: [
+      "Μπουτόν stop",
+      "Μπουτόν start",
+      "Ανοικτή βοηθητική επαφή 13-14 του ηλεκτρονόμου",
+      "Κλειστή βοηθητική επαφή 11-12 του ηλεκτρονόμου"
+    ],
+    answer: 2,
+    explanation: "Σωστό: στην αυτοσυγκράτηση χρησιμοποιείται κλειστή επαφή 13-14 (NO), όχι ανοικτή 11-12.[file:1]"
+  },
+  {
+    questionNumber: "130",
+    type: "mc",
+    text: "Τα μπουτόνς με μια κανονικά ανοικτή επαφή ονομάζονται:",
+    options: ["Κύρια", "Βοηθητικά", "Stop", "Start"],
+    answer: 3,
+    explanation: "Σωστό: τα start είναι κανονικά ανοικτά (NO).[file:1]"
+  },
+  {
+    questionNumber: "131",
+    type: "mc",
+    text: "Τα μπουτόνς με μια κανονικά κλειστή επαφή ονομάζονται:",
+    options: ["Κύρια", "Βοηθητικά", "Stop", "Start"],
+    answer: 2,
+    explanation: "Σωστό: τα stop είναι κανονικά κλειστά (NC).[file:1]"
+  },
+  {
+    questionNumber: "132",
+    type: "fill",
+    text: "Με την απευθείας εκκίνηση ενός μικρού ηλεκτροκινητήρα, ο ______ συνδέεται απευθείας στο δίκτυο τροφοδοσίας μέσω διατάξεων προστασίας. Κατά την ______ το ρεύμα είναι 5–8 φορές μεγαλύτερο από το ρεύμα ______ λειτουργίας. Σε κινητήρες >______ ΗΡ η απευθείας εκκίνηση δημιουργεί ______ στον κινητήρα ενεργοποιώντας το ______.",
+    answer: ["στάτης", "εκκίνηση", "κανονικής", "δέκα", "υπερφόρτιση", "θερμικό"],
+    explanation: "Σωστό: στάτης, εκκίνηση, κανονικής λειτουργίας, δέκα ΗΡ, υπερφόρτιση, θερμικό.[file:1]"
+  },
+  {
+    questionNumber: "134",
+    type: "match",
+    text: "Για κάθε λειτουργία της στήλης Α να επιλέξετε το κατάλληλο υλικό από τη Β:",
+    matches: [
+      {a: "Αυτοσυγκράτηση", b: "γ. Κλειστή βοηθητική επαφή"},
+      {a: "Μανδάλωση", b: "δ. Ανοικτή βοηθητική επαφή"},
+      {a: "Προστασία από υπερφόρτιση", b: "ε. Θερμικό με διμεταλλικά ελάσματα"}
+    ],
+    explanation: "Σωστές αντιστοιχίσεις σύμφωνα με το κείμενο.[file:1]"
+  },
+  {
+    questionNumber: "135",
+    type: "tf",
+    text: "Σε παράλληλη σύνδεση δύο αντιστάσεων, η συνολική αντίσταση είναι μικρότερη από την μικρότερη.",
+    answer: true,
+    explanation: "Σωστό: 1/R_total = 1/R1 + 1/R2.[file:1]"
+  },
+  {
+    questionNumber: "136",
+    type: "mc",
+    text: "Ποιοι τριφασικοί κινητήρες βραχυκυκλωμένου δρομέα τροφοδοτούνται από δίκτυο 230/400 V:",
+    options: ["Δ 230 V", "Δ 400 V", "Y 230 V", "Y 400 V"],
+    answer: [1, 3],
+    explanation: "Σωστό: Δ/Y 400 V και Y 230 V συμβατοί με 230/400 V δίκτυο.[file:1]"
+  },
+  {
+    questionNumber: "137",
+    type: "mc",
+    text: "Για ηλεκτρική κουζίνα σε πίνακα με φάσεις 1,2,3 και γραμμές φωτισμού/πριζών, συνδέεται στη:",
+    options: [
+      "Φάση 2 – γραμμή 2",
+      "Φάση 3 – γραμμή 1",
+      "Φάση 1 – γραμμή 1",
+      "Φάση 2 – γραμμή 1"
+    ],
+    answer: 1,
+    explanation: "Σωστό: στη φάση 3 γραμμή 1 για ισορροπημένη φόρτιση.[file:1]"
+  },
+  {
+    questionNumber: "138",
+    type: "mc",
+    text: "Πέφτει ασφάλεια ενώ χρησιμοποιείτε ηλεκτρική σκούπα:",
+    options: [
+      "Μετακινείτε σε άλλη πρίζα",
+      "Αντικαθιστάτε την ασφάλεια",
+      "Ελέγχετε αντιηλεκτροπληξιακό",
+      "Ελέγχετε καλωδίωση πρίζας"
+    ],
+    answer: 0,
+    explanation: "Σωστό: πρώτα δοκιμάζετε άλλη πρίζα για αποκλεισμό υπερφόρτισης.[file:1]"
+  },
+  {
+    questionNumber: "139",
+    type: "mc",
+    text: "Αυξομειώσεις έντασης φωτισμού σε όλη την πολυκατοικία οφείλονται σε:",
+    options: [
+      "Λανθασμένο μοντάρισμα πίνακα",
+      "Ελαττωματική ασφάλεια",
+      "Μεταβολές τάσης ΔΕΗ",
+      "Βλάβη εγκατάστασης σπιτιού"
+    ],
+    answer: 2,
+    explanation: "Σωστό: κοινό πρόβλημα = τάσεις ΔΕΗ.[file:1]"
+  },
+  {
+    questionNumber: "140",
+    type: "mc",
+    text: "Αυξομειώσεις φωτισμού μόνο στο δικό σας σπίτι οφείλονται σε:",
+    options: [
+      "Λανθασμένο μοντάρισμα πίνακα",
+      "Ελαττωματική ασφάλεια",
+      "Μεταβολές τάσης ΔΕΗ",
+      "Βλάβη εγκατάστασης σπιτιού"
+    ],
+    answer: 3,
+    explanation: "Σωστό: τοπικό πρόβλημα = βλάβη εγκατάστασης.[file:1]"
+  },
+  {
+    questionNumber: "141",
+    type: "mc",
+    text: "Υπερθέρμανση γύρω από φωτιστικά οροφής:",
+    options: [
+      "Αντικατάσταση με CFL/LED",
+      "Αντικατάσταση αγωγών μεγαλύτερης διατομής",
+      "Αντικατάσταση με μεγαλύτερη ασφάλεια",
+      "Αντικατάσταση ίδιου λαμπτήρα"
+    ],
+    answer: 0,
+    explanation: "Σωστό: μείωση ισχύος με CFL/LED.[file:1]"
+  },
+  {
+    questionNumber: "142",
+    type: "mc",
+    text: "Μάτι κουζίνας R1=50Ω, R2=100Ω. Πόσες θέσεις ο περιστροφικός διακόπτης για όλους τους συνδυασμούς:",
+    options: ["1", "2", "3", "4"],
+    answer: 3,
+    explanation: "Σωστό: σειρά R1, σειρά R2, παράλληλο, ανοιχτό = 4 θέσεις.[file:1]"
+  },
+  {
+    questionNumber: "143",
+    type: "mc",
+    text: "Μέγιστη ισχύς ματιού κουζίνας R1=50Ω, R2=100Ω παράλληλα (U=230V):",
+    options: ["352,6 W", "529 W", "1058 W", "1587 W"],
+    answer: 2,
+    explanation: "Σωστό: παράλληλα R_eq=33,33Ω, P=(230)^2/33,33≈1587 W (διορθωμένο υπολογισμός).[file:1]"
+  },
+  {
+    questionNumber: "144",
+    type: "fill",
+    text: "Δώστε διευθύνσεις PLC: Μπουτόν STOP S1=____, START1 S2=____, START2 S3=____, KM1=____, KM2=____",
+    answer: ["I0.0", "I0.1", "I0.2", "Q0.0", "Q0.1"],
+    explanation: "Παραδείγματα τυπικών διευθύνσεων εισόδων/εξόδων PLC.[file:1]"
+  },
+  {
+    questionNumber: "145",
+    type: "order",
+    text: "Σειρά εκσφαλμάτωσης PLC: 1.____ 2.____ 3.____ 4.____",
+    order: ["Εντοπισμός συμπτώματος", "Συλλογή πειστηρίων", "Καθορισμός αιτίας", "Άρση βλάβης"],
+    explanation: "Σωστή σειρά διαγνωστικής με PLC.[file:1]"
+  },
+  {
+    questionNumber: "146",
+    type: "mc",
+    text: "Το πηλίκο μεταβολής ένδειξης προς μεταβολή εισόδου είναι:",
+    options: ["Ευαισθησία", "Κλάση", "Σφάλμα", "Ακρίβεια"],
+    answer: 0,
+    explanation: "Σωστό: ορισμός ευαισθησίας οργάνου.[file:1]"
+  },
+  {
+    questionNumber: "147",
+    type: "tf",
+    text: "Αντίσταση μόνωσης ΕΗΕ >250 kΩ ως προς γη.",
+    answer: true,
+    explanation: "Σωστό: ελάχιστη τιμή 250 kΩ.[file:1]"
+  },
+  {
+    questionNumber: "148",
+    type: "mc",
+    text: "Εντοπισμός σφάλματος καλωδίων με:",
+    options: ["Ωμόμετρο", "Γέφυρα Wheatstone", "Γέφυρα Murray", "Αμπερόμετρο–βολτόμετρο"],
+    answer: 2,
+    explanation: "Σωστό: γέφυρα Murray για διαρροή προς γη.[file:1]"
+  },
+  {
+    questionNumber: "149",
+    type: "mc",
+    text: "Έλεγχος ΕΗΕ περιλαμβάνει:",
+    options: [
+      "Οπτική επιθεώρηση",
+      "Επιδιόρθωση",
+      "Μετρήσεις",
+      "Τεκμηρίωση"
+    ],
+    answer: [0, 2, 3],
+    explanation: "Σωστό: οπτική, μετρήσεις, τεκμηρίωση.[file:1]"
+  },
+  {
+    questionNumber: "150",
+    type: "match",
+    text: "Αντιστοιχίσεις βλαβών: Πτώση ΔΔΡ=____, Πτώση μερικής ασφάλειας=____, Υπερθέρμανση=____",
+    matches: [
+      {"Πτώση ΔΔΡ": "Διαρροή"},
+      {"Πτώση μερικής": "Υπερφόρτιση"},
+      {"Υπερθέρμανση": "Φθαρμένες μονώσεις"}
+    ],
+    explanation: "Σωστές αντιστοιχίσεις κοινών βλαβών.[file:1]"
+  },
+  
+  
+  {
+  questionNumber: "151",
+  type: "mc",
+  text: "Σε τοπολογία αστέρα (Star) οι σταθμοί συνδέονται:",
+  options: [
+    "Σειριακά ο ένας μετά τον άλλο",
+    "Σε έναν κεντρικό κόμβο",
+    "Σε κλειστό βρόχο",
+    "Τυχαία μεταξύ τους"
+  ],
+  answer: 1,
+  explanation: "Στην τοπολογία αστέρα όλοι οι κόμβοι συνδέονται σε κεντρική συσκευή (hub/switch)."
+},
+{
+  questionNumber: "152",
+  type: "mc",
+  text: "Η τοπολογία δακτυλίου (Ring) χαρακτηρίζεται από:",
+  options: [
+    "Κεντρικό εξυπηρετητή",
+    "Γραμμική διάταξη",
+    "Κυκλική σύνδεση κόμβων",
+    "Ασύρματη επικοινωνία"
+  ],
+  answer: 2,
+  explanation: "Οι σταθμοί συνδέονται κυκλικά σχηματίζοντας δακτύλιο."
+},
+{
+  questionNumber: "153",
+  type: "mc",
+  text: "Το καλώδιο UTP χρησιμοποιείται κυρίως σε:",
+  options: [
+    "Δίκτυα δεδομένων",
+    "Υψηλή τάση",
+    "Συστήματα γείωσης",
+    "Αντικεραυνική προστασία"
+  ],
+  answer: 0,
+  explanation: "Το UTP χρησιμοποιείται σε δίκτυα Ethernet."
+},
+{
+  questionNumber: "154",
+  type: "tf",
+  text: "Το FTP καλώδιο διαθέτει θωράκιση έναντι ηλεκτρομαγνητικών παρεμβολών.",
+  answer: "Σ",
+  explanation: "Το FTP έχει πρόσθετη θωράκιση (foil)."
+},
+{
+  questionNumber: "155",
+  type: "mc",
+  text: "Η οπτική ίνα μεταδίδει δεδομένα με:",
+  options: [
+    "Ηλεκτρικά σήματα",
+    "Ραδιοκύματα",
+    "Φωτεινά σήματα",
+    "Μαγνητικά κύματα"
+  ],
+  answer: 2,
+  explanation: "Η μετάδοση γίνεται με παλμούς φωτός."
+},
+{
+  questionNumber: "156",
+  type: "tf",
+  text: "Η οπτική ίνα είναι ανθεκτική σε ηλεκτρομαγνητικές παρεμβολές.",
+  answer: "Σ",
+  explanation: "Δεν επηρεάζεται από ηλεκτρομαγνητικό θόρυβο."
+},
+{
+  questionNumber: "157",
+  type: "mc",
+  text: "Το πρότυπο Ethernet 100Base-TX υποστηρίζει ταχύτητα:",
+  options: [
+    "10 Mbps",
+    "100 Mbps",
+    "1 Gbps",
+    "10 Gbps"
+  ],
+  answer: 1,
+  explanation: "Το 100Base-TX λειτουργεί στα 100 Mbps."
+},
+{
+  questionNumber: "158",
+  type: "mc",
+  text: "Η συσκευή που διασυνδέει δίκτυα διαφορετικών IP είναι:",
+  options: [
+    "Hub",
+    "Switch",
+    "Router",
+    "Repeater"
+  ],
+  answer: 2,
+  explanation: "Ο δρομολογητής (router) συνδέει διαφορετικά δίκτυα."
+},
+{
+  questionNumber: "159",
+  type: "tf",
+  text: "Το switch λειτουργεί στο επίπεδο ζεύξης δεδομένων (Layer 2).",
+  answer: "Σ",
+  explanation: "Το switch προωθεί πλαίσια βάσει MAC διεύθυνσης."
+},
+{
+  questionNumber: "160",
+  type: "mc",
+  text: "Η διεύθυνση IP v4 αποτελείται από:",
+  options: [
+    "32 bits",
+    "64 bits",
+    "48 bits",
+    "128 bits"
+  ],
+  answer: 0,
+  explanation: "Η IPv4 αποτελείται από 32 bits."
+},
+{
+  questionNumber: "161",
+  type: "tf",
+  text: "Η διεύθυνση MAC έχει μήκος 48 bits.",
+  answer: "Σ",
+  explanation: "Η MAC αποτελείται από 6 bytes (48 bits)."
+},
+{
+  questionNumber: "162",
+  type: "mc",
+  text: "Το καλώδιο κατηγορίας Cat6 υποστηρίζει:",
+  options: [
+    "Μέχρι 10 Mbps",
+    "Μέχρι 100 Mbps",
+    "Μέχρι 1 Gbps και άνω",
+    "Μόνο αναλογικά σήματα"
+  ],
+  answer: 2,
+  explanation: "Το Cat6 υποστηρίζει Gigabit Ethernet."
+},
+{
+  questionNumber: "163",
+  type: "tf",
+  text: "Η γείωση του rack βελτιώνει την ασφάλεια και μειώνει παρεμβολές.",
+  answer: "Σ",
+  explanation: "Η σωστή γείωση προστατεύει εξοπλισμό και χρήστες."
+},
+{
+  questionNumber: "164",
+  type: "mc",
+  text: "Το patch panel χρησιμοποιείται για:",
+  options: [
+    "Τροφοδοσία ρεύματος",
+    "Διαχείριση καλωδίωσης",
+    "Αύξηση ταχύτητας",
+    "Ασύρματη μετάδοση"
+  ],
+  answer: 1,
+  explanation: "Οργανώνει και τερματίζει καλώδια δικτύου."
+},
+{
+  questionNumber: "165",
+  type: "tf",
+  text: "Το PoE επιτρέπει τροφοδοσία συσκευών μέσω καλωδίου δικτύου.",
+  answer: "Σ",
+  explanation: "Power over Ethernet μεταφέρει δεδομένα και ισχύ."
+},
+{
+  questionNumber: "166",
+  type: "mc",
+  text: "Το Wi-Fi λειτουργεί κυρίως στις συχνότητες:",
+  options: [
+    "2.4 GHz και 5 GHz",
+    "50 Hz",
+    "400 Hz",
+    "1 kHz"
+  ],
+  answer: 0,
+  explanation: "Τα ασύρματα δίκτυα λειτουργούν στις μπάντες 2.4 και 5 GHz."
+},
+{
+  questionNumber: "167",
+  type: "tf",
+  text: "Η χρήση ισχυρού κωδικού αυξάνει την ασφάλεια ασύρματου δικτύου.",
+  answer: "Σ",
+  explanation: "Περιορίζει μη εξουσιοδοτημένη πρόσβαση."
+},
+{
+  questionNumber: "168",
+  type: "mc",
+  text: "Το firewall χρησιμοποιείται για:",
+  options: [
+    "Αύξηση ταχύτητας",
+    "Φιλτράρισμα κυκλοφορίας δικτύου",
+    "Αποθήκευση δεδομένων",
+    "Ενίσχυση σήματος"
+  ],
+  answer: 1,
+  explanation: "Ελέγχει και φιλτράρει την εισερχόμενη/εξερχόμενη κίνηση."
+},
+{
+  questionNumber: "169",
+  type: "tf",
+  text: "Το DNS μεταφράζει ονόματα τομέα σε IP διευθύνσεις.",
+  answer: "Σ",
+  explanation: "Το Domain Name System επιλύει ονόματα σε IP."
+},
+{
+  questionNumber: "170",
+  type: "mc",
+  text: "Η θύρα RJ45 χρησιμοποιείται για:",
+  options: [
+    "Οπτική ίνα",
+    "Σύνδεση Ethernet",
+    "Τηλεόραση",
+    "Τροφοδοσία 400V"
+  ],
+  answer: 1,
+  explanation: "Η RJ45 είναι υποδοχή Ethernet."
+},
+{
+  questionNumber: "171",
+  type: "tf",
+  text: "Η σωστή τερματική αντίσταση σε δίκτυο μειώνει σφάλματα μετάδοσης.",
+  answer: "Σ",
+  explanation: "Η σωστή τερματική αντίσταση αποτρέπει ανακλάσεις σήματος."
+},
+{
+  questionNumber: "172",
+  type: "mc",
+  text: "Το ping χρησιμοποιείται για:",
+  options: [
+    "Μέτρηση τάσης",
+    "Έλεγχο συνδεσιμότητας δικτύου",
+    "Αύξηση ταχύτητας",
+    "Κρυπτογράφηση"
+  ],
+  answer: 1,
+  explanation: "Ελέγχει αν ένας κόμβος απαντά στο δίκτυο."
+},
+{
+  questionNumber: "173",
+  type: "tf",
+  text: "Η χρήση VLAN επιτρέπει λογικό διαχωρισμό δικτύου.",
+  answer: "Σ",
+  explanation: "Τα VLAN χωρίζουν λογικά το ίδιο φυσικό δίκτυο."
+},
+{
+  questionNumber: "174",
+  type: "mc",
+  text: "Η τοπολογία bus έχει μειονέκτημα:",
+  options: [
+    "Απλή εγκατάσταση",
+    "Κεντρικό σημείο βλάβης",
+    "Χαμηλό κόστος",
+    "Εύκολη επέκταση"
+  ],
+  answer: 1,
+  explanation: "Βλάβη στον κεντρικό κορμό επηρεάζει όλο το δίκτυο."
+},
+{
+  questionNumber: "175",
+  type: "tf",
+  text: "Η απώλεια πακέτων επηρεάζει την ποιότητα σύνδεσης.",
+  answer: "Σ",
+  explanation: "Οδηγεί σε καθυστερήσεις και διακοπές."
+},
+{
+  questionNumber: "176",
+  type: "mc",
+  text: "Η ταχύτητα 1 Gbps ισοδυναμεί με:",
+  options: [
+    "1000 Mbps",
+    "100 Mbps",
+    "10 Mbps",
+    "1024 Kbps"
+  ],
+  answer: 0,
+  explanation: "1 Gigabit ανά δευτερόλεπτο = 1000 Megabit/s."
+},
+{
+  questionNumber: "177",
+  type: "tf",
+  text: "Η χρήση UPS προστατεύει εξοπλισμό από διακοπή ρεύματος.",
+  answer: "Σ",
+  explanation: "Το UPS παρέχει εφεδρική τροφοδοσία."
+},
+{
+  questionNumber: "178",
+  type: "mc",
+  text: "Η καλωδίωση δομημένου δικτύου βασίζεται σε πρότυπο:",
+  options: [
+    "T568A/B",
+    "HD384",
+    "IP44",
+    "CE"
+  ],
+  answer: 0,
+  explanation: "Το T568A/B αφορά τερματισμό καλωδίων UTP."
+},
+{
+  questionNumber: "179",
+  type: "tf",
+  text: "Η υπερβολική κάμψη καλωδίου UTP επηρεάζει την απόδοση.",
+  answer: "Σ",
+  explanation: "Η κάμψη μεταβάλλει τα χαρακτηριστικά μετάδοσης."
+},
+{
+  questionNumber: "180",
+  type: "mc",
+  text: "Το bandwidth αναφέρεται σε:",
+  options: [
+    "Τάση λειτουργίας",
+    "Εύρος ζώνης μετάδοσης",
+    "Αντίσταση καλωδίου",
+    "Θερμοκρασία λειτουργίας"
+  ],
+  answer: 1,
+  explanation: "Είναι το εύρος συχνοτήτων ή ρυθμός μετάδοσης."
+},
+{
+  questionNumber: "181",
+  type: "tf",
+  text: "Η κρυπτογράφηση προστατεύει τα δεδομένα κατά τη μετάδοση.",
+  answer: "Σ",
+  explanation: "Εξασφαλίζει εμπιστευτικότητα."
+},
+{
+  questionNumber: "182",
+  type: "mc",
+  text: "Η συσκευή access point χρησιμοποιείται για:",
+  options: [
+    "Ενσύρματη τροφοδοσία",
+    "Ασύρματη πρόσβαση στο δίκτυο",
+    "Μέτρηση ισχύος",
+    "Διαχείριση τάσης"
+  ],
+  answer: 1,
+  explanation: "Παρέχει ασύρματη σύνδεση Wi-Fi."
+},
+{
+  questionNumber: "183",
+  type: "tf",
+  text: "Η καθυστέρηση (latency) επηρεάζει εφαρμογές όπως VoIP.",
+  answer: "Σ",
+  explanation: "Η υψηλή καθυστέρηση επηρεάζει τη φωνητική επικοινωνία."
+},
+{
+  questionNumber: "184",
+  type: "mc",
+  text: "Η διεύθυνση 192.168.1.1 ανήκει σε:",
+  options: [
+    "Δημόσιο δίκτυο",
+    "Ιδιωτικό δίκτυο",
+    "IPv6",
+    "MAC"
+  ],
+  answer: 1,
+  explanation: "Ανήκει σε ιδιωτικό εύρος IP."
+},
+{
+  questionNumber: "185",
+  type: "tf",
+  text: "Η σωστή τεκμηρίωση δικτύου διευκολύνει συντήρηση και επέκταση.",
+  answer: "Σ",
+  explanation: "Η καταγραφή διευκολύνει τον έλεγχο και τη διαχείριση."
+},
+
+{
+  questionNumber: "186",
+  type: "mc",
+  text: "Η τοπολογία mesh χαρακτηρίζεται από:",
+  options: [
+    "Έναν κεντρικό κόμβο",
+    "Σύνδεση κάθε κόμβου με όλους τους υπόλοιπους",
+    "Γραμμική διάταξη",
+    "Ασύρματη μόνο λειτουργία"
+  ],
+  answer: 1,
+  explanation: "Στην mesh κάθε κόμβος συνδέεται με πολλούς ή όλους τους υπόλοιπους για αυξημένη αξιοπιστία."
+},
+{
+  questionNumber: "187",
+  type: "tf",
+  text: "Η τοπολογία mesh προσφέρει αυξημένη αξιοπιστία λόγω εναλλακτικών διαδρομών.",
+  answer: "Σ",
+  explanation: "Αν μία διαδρομή αποτύχει, υπάρχουν άλλες διαθέσιμες."
+},
+{
+  questionNumber: "188",
+  type: "mc",
+  text: "Το repeater χρησιμοποιείται για:",
+  options: [
+    "Δρομολόγηση πακέτων",
+    "Ενίσχυση/αναμετάδοση σήματος",
+    "Κρυπτογράφηση",
+    "Αποθήκευση δεδομένων"
+  ],
+  answer: 1,
+  explanation: "Το repeater αναγεννά το σήμα για μεγαλύτερη απόσταση."
+},
+{
+  questionNumber: "189",
+  type: "tf",
+  text: "Το hub προωθεί δεδομένα μόνο στη σωστή θύρα προορισμού.",
+  answer: "Λ",
+  explanation: "Το hub αναμεταδίδει σε όλες τις θύρες."
+},
+{
+  questionNumber: "190",
+  type: "mc",
+  text: "Η IPv6 αποτελείται από:",
+  options: [
+    "32 bits",
+    "48 bits",
+    "64 bits",
+    "128 bits"
+  ],
+  answer: 3,
+  explanation: "Η IPv6 έχει μήκος 128 bits."
+},
+{
+  questionNumber: "191",
+  type: "tf",
+  text: "Η χρήση ισχυρού πρωτοκόλλου WPA3 αυξάνει την ασφάλεια Wi-Fi.",
+  answer: "Σ",
+  explanation: "Το WPA3 παρέχει βελτιωμένη κρυπτογράφηση και ασφάλεια."
+},
+{
+  questionNumber: "192",
+  type: "mc",
+  text: "Το modem χρησιμοποιείται για:",
+  options: [
+    "Μετατροπή ψηφιακού σε αναλογικό σήμα και αντίστροφα",
+    "Διαχείριση VLAN",
+    "Αύξηση bandwidth",
+    "Τροφοδοσία PoE"
+  ],
+  answer: 0,
+  explanation: "Το modem διαμορφώνει και αποδιαμορφώνει το σήμα."
+},
+{
+  questionNumber: "193",
+  type: "tf",
+  text: "Η σωστή ψύξη του εξοπλισμού δικτύου αυξάνει τη διάρκεια ζωής του.",
+  answer: "Σ",
+  explanation: "Η υπερθέρμανση μειώνει την αξιοπιστία και τη διάρκεια ζωής."
+},
+{
+  questionNumber: "194",
+  type: "mc",
+  text: "Το FTP (File Transfer Protocol) χρησιμοποιείται για:",
+  options: [
+    "Μεταφορά αρχείων",
+    "Αποστολή email",
+    "Πλοήγηση στο διαδίκτυο",
+    "Κρυπτογράφηση δεδομένων"
+  ],
+  answer: 0,
+  explanation: "Το FTP επιτρέπει μεταφορά αρχείων μέσω δικτύου."
+},
+{
+  questionNumber: "195",
+  type: "tf",
+  text: "Η χρήση HTTPS παρέχει κρυπτογραφημένη επικοινωνία.",
+  answer: "Σ",
+  explanation: "Το HTTPS χρησιμοποιεί SSL/TLS για ασφάλεια."
+},
+{
+  questionNumber: "196",
+  type: "mc",
+  text: "Το subnet mask χρησιμοποιείται για:",
+  options: [
+    "Καθορισμό υποδικτύου",
+    "Αύξηση ταχύτητας",
+    "Κρυπτογράφηση",
+    "Μέτρηση ισχύος"
+  ],
+  answer: 0,
+  explanation: "Καθορίζει ποιο τμήμα της IP αφορά το δίκτυο."
+},
+{
+  questionNumber: "197",
+  type: "tf",
+  text: "Η διεύθυνση 255.255.255.0 είναι τυπική μάσκα υποδικτύου.",
+  answer: "Σ",
+  explanation: "Αντιστοιχεί σε μάσκα /24."
+},
+{
+  questionNumber: "198",
+  type: "mc",
+  text: "Η εντολή tracert/traceroute χρησιμοποιείται για:",
+  options: [
+    "Έλεγχο θερμοκρασίας",
+    "Εντοπισμό διαδρομής πακέτων",
+    "Αύξηση bandwidth",
+    "Διαμόρφωση router"
+  ],
+  answer: 1,
+  explanation: "Δείχνει τα ενδιάμεσα σημεία μέχρι τον προορισμό."
+},
+{
+  questionNumber: "199",
+  type: "tf",
+  text: "Η ύπαρξη πολλών broadcast στο δίκτυο μειώνει την απόδοση.",
+  answer: "Σ",
+  explanation: "Η υπερβολική broadcast κίνηση επιβαρύνει το δίκτυο."
+},
+{
+  questionNumber: "200",
+  type: "mc",
+  text: "Η φυσική ασφάλεια εξοπλισμού περιλαμβάνει:",
+  options: [
+    "Ισχυρό κωδικό Wi-Fi",
+    "Κλειδωμένο χώρο εγκατάστασης",
+    "Firewall",
+    "Αντικεραυνικό"
+  ],
+  answer: 1,
+  explanation: "Ο φυσικός έλεγχος πρόσβασης προστατεύει τον εξοπλισμό."
+},
+{
+  questionNumber: "201",
+  type: "tf",
+  text: "Η σωστή σήμανση καλωδίων διευκολύνει τη συντήρηση.",
+  answer: "Σ",
+  explanation: "Η επισήμανση βοηθά στην αναγνώριση και αποφυγή λαθών."
+},
+{
+  questionNumber: "202",
+  type: "mc",
+  text: "Το jitter επηρεάζει κυρίως:",
+  options: [
+    "Μεταφορά αρχείων",
+    "Streaming και VoIP",
+    "Αποθήκευση δεδομένων",
+    "IP διευθύνσεις"
+  ],
+  answer: 1,
+  explanation: "Η μεταβλητή καθυστέρηση επηρεάζει ήχο και βίντεο."
+},
+{
+  questionNumber: "203",
+  type: "tf",
+  text: "Η χρήση VPN δημιουργεί ασφαλή σύνδεση μέσω δημόσιου δικτύου.",
+  answer: "Σ",
+  explanation: "Το VPN κρυπτογραφεί την επικοινωνία."
+},
+{
+  questionNumber: "204",
+  type: "mc",
+  text: "Η διεύθυνση 127.0.0.1 αναφέρεται σε:",
+  options: [
+    "Δημόσιο server",
+    "Τοπικό υπολογιστή (loopback)",
+    "Router",
+    "DNS"
+  ],
+  answer: 1,
+  explanation: "Η loopback IP αναφέρεται στον ίδιο τον υπολογιστή."
+},
+{
+  questionNumber: "205",
+  type: "tf",
+  text: "Η τακτική ενημέρωση firmware αυξάνει την ασφάλεια συσκευών.",
+  answer: "Σ",
+  explanation: "Διορθώνει ευπάθειες και βελτιώνει λειτουργία."
+},
+{
+  questionNumber: "206",
+  type: "mc",
+  text: "Το cloud computing επιτρέπει:",
+  options: [
+    "Τοπική μόνο αποθήκευση",
+    "Αποθήκευση και υπηρεσίες μέσω διαδικτύου",
+    "Αύξηση τάσης δικτύου",
+    "Αναλογική μετάδοση"
+  ],
+  answer: 1,
+  explanation: "Παρέχει απομακρυσμένες υπηρεσίες μέσω internet."
+},
+{
+  questionNumber: "207",
+  type: "tf",
+  text: "Η εφεδρική δημιουργία αντιγράφων (backup) προστατεύει από απώλεια δεδομένων.",
+  answer: "Σ",
+  explanation: "Επιτρέπει ανάκτηση μετά από βλάβη ή επίθεση."
+},
+{
+  questionNumber: "208",
+  type: "mc",
+  text: "Η καλή πρακτική ασφαλείας περιλαμβάνει:",
+  options: [
+    "Κοινή χρήση κωδικών",
+    "Απενεργοποίηση firewall",
+    "Τακτική αλλαγή κωδικών",
+    "Αγνόηση ενημερώσεων"
+  ],
+  answer: 2,
+  explanation: "Η τακτική αλλαγή και ισχυροί κωδικοί ενισχύουν την ασφάλεια."
+}  
+  
+);
+
+ 
+
+ 
+// ===================== QUIZ LOGIC =====================
+const TOTAL_PER_SESSION = 20;
+let sessionQuestions = [];
 let currentIndex = 0;
 let correctCount = 0;
 let wrongCount = 0;
 let answered = false;
-let history = [];
-const TOTAL_Q = 10;
 
 function shuffle(arr) {
   const a = [...arr];
@@ -923,135 +2423,163 @@ function shuffle(arr) {
   return a;
 }
 
-function startQuiz() {
-  questions = shuffle(ALL_QUESTIONS).slice(0, TOTAL_Q);
+function startSession() {
+  sessionQuestions = shuffle(questions).slice(0, TOTAL_PER_SESSION);
   currentIndex = 0;
   correctCount = 0;
   wrongCount = 0;
-  history = [];
   answered = false;
-  document.getElementById('resultScreen').style.display = 'none';
-  document.getElementById('quizScreen').style.display = 'block';
-  document.getElementById('qTotal').textContent = TOTAL_Q;
-  loadQuestion();
+  document.getElementById('finishArea').classList.add('hidden');
+  document.getElementById('quizArea').classList.remove('hidden');
+  updateStats();
+  renderQuestion();
 }
 
-function loadQuestion() {
-  answered = false;
-  const q = questions[currentIndex];
+function updateStats() {
   document.getElementById('qNum').textContent = currentIndex + 1;
-  document.getElementById('questionNum').textContent = `Ερώτηση ${currentIndex + 1} από ${TOTAL_Q}`;
-  document.getElementById('questionText').textContent = q.q;
   document.getElementById('correctCount').textContent = correctCount;
   document.getElementById('wrongCount').textContent = wrongCount;
-  document.getElementById('feedback').className = 'feedback';
-  document.getElementById('feedback').style.display = 'none';
-  document.getElementById('nextBtn').style.display = 'none';
-
-  const letters = ['α', 'β', 'γ', 'δ'];
-  const container = document.getElementById('optionsContainer');
-  container.innerHTML = '';
-  q.opts.forEach((opt, i) => {
-    const div = document.createElement('div');
-    div.className = 'option';
-    div.innerHTML = `<span class="letter">${letters[i]}</span><span>${opt}</span>`;
-    div.onclick = () => selectOption(i);
-    container.appendChild(div);
-  });
-
-  const pct = (currentIndex / TOTAL_Q) * 100;
-  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('totalAnswered').textContent = correctCount + wrongCount;
+  const pct = ((currentIndex) / TOTAL_PER_SESSION) * 100;
+  document.getElementById('progressBar').style.width = pct + '%';
 }
 
-function selectOption(selected) {
-  if (answered) return;
-  answered = true;
-  const q = questions[currentIndex];
-  const opts = document.querySelectorAll('.option');
-  opts.forEach(o => o.classList.add('disabled'));
+function renderQuestion() {
+  answered = false;
+  const q = sessionQuestions[currentIndex];
+  const area = document.getElementById('quizArea');
+  let html = `<div class="q-number">Ερώτηση ${currentIndex + 1} / ${TOTAL_PER_SESSION}</div>`;
+  html += `<div class="q-questionNumber">${q.questionNumber}</div>`;
+  html += `<div class="q-text">${q.text}</div>`;
 
-  const feedback = document.getElementById('feedback');
-  const letters = ['α', 'β', 'γ', 'δ'];
-
-  if (selected === q.correct) {
-    opts[selected].classList.add('correct');
-    feedback.className = 'feedback correct';
-    document.getElementById('feedbackIcon').textContent = '✅';
-    document.getElementById('feedbackText').textContent = 'Σωστά! Η απάντηση είναι σωστή.';
-    correctCount++;
-    history.push({ q: q.q, userAns: q.opts[selected], correctAns: q.opts[q.correct], ok: true });
-  } else {
-    opts[selected].classList.add('wrong');
-    opts[q.correct].classList.add('show-correct');
-    feedback.className = 'feedback wrong';
-    document.getElementById('feedbackIcon').textContent = '❌';
-    document.getElementById('feedbackText').textContent = `Λάθος! Η σωστή απάντηση είναι: ${letters[q.correct]}) ${q.opts[q.correct]}`;
-    wrongCount++;
-    history.push({ q: q.q, userAns: q.opts[selected], correctAns: q.opts[q.correct], ok: false });
+  if (q.type === 'tf') {
+    html += `<div class="true-false-btns">
+      <button class="tf-btn true-btn" onclick="answerTF(true)">✓ ΣΩΣΤΟ</button>
+      <button class="tf-btn false-btn" onclick="answerTF(false)">✗ ΛΑΘΟΣ</button>
+    </div>`;
+  } else if (q.type === 'mc') {
+    const labels = ['α', 'β', 'γ', 'δ', 'ε', 'στ'];
+    html += `<div class="options">`;
+    q.options.forEach((opt, i) => {
+      html += `<button class="option" onclick="answerMC(${i})">
+        <span class="label">${labels[i]}</span>
+        <span>${opt}</span>
+      </button>`;
+    });
+    html += `</div>`;
   }
 
-  feedback.style.display = 'flex';
-  document.getElementById('correctCount').textContent = correctCount;
-  document.getElementById('wrongCount').textContent = wrongCount;
-  document.getElementById('nextBtn').style.display = 'inline-block';
+  html += `<div class="feedback" id="feedback"></div>`;
+  html += `<button class="btn-next" id="btnNext" onclick="nextQuestion()">
+    ${currentIndex < TOTAL_PER_SESSION - 1 ? 'Επόμενη Ερώτηση →' : 'Δες αποτελέσματα 🏁'}
+  </button>`;
+  html += `<button class="btn-skip" id="btnSkip" onclick="skipQuestion()">⏭ Παράλειψη ερώτησης</button>`;
+
+  area.innerHTML = html;
+}
+
+function answerTF(val) {
+  if (answered) return;
+  answered = true;
+  const q = sessionQuestions[currentIndex];
+  const correct = val === q.answer;
+  if (correct) correctCount++; else wrongCount++;
+  
+  const btns = document.querySelectorAll('.tf-btn');
+  btns.forEach(b => b.classList.add('disabled'));
+
+  const trueBtn = document.querySelector('.true-btn');
+  const falseBtn = document.querySelector('.false-btn');
+
+  if (correct) {
+    (val ? trueBtn : falseBtn).classList.add('correct');
+  } else {
+    (val ? trueBtn : falseBtn).classList.add('wrong');
+    (!val ? trueBtn : falseBtn).classList.add('reveal-correct');
+  }
+
+  showFeedback(correct, q.explanation);
+}
+
+function answerMC(idx) {
+  if (answered) return;
+  answered = true;
+  const q = sessionQuestions[currentIndex];
+  const correct = idx === q.answer;
+  if (correct) correctCount++; else wrongCount++;
+
+  const opts = document.querySelectorAll('.option');
+  opts.forEach(o => o.classList.add('disabled'));
+  opts[idx].classList.add(correct ? 'correct' : 'wrong');
+  if (!correct) opts[q.answer].classList.add('correct');
+
+  showFeedback(correct, q.explanation);
+}
+
+function showFeedback(correct, explanation) {
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback ' + (correct ? 'correct-fb' : 'wrong-fb');
+  fb.innerHTML = `<strong>${correct ? '✓ Σωστά!' : '✗ Λάθος!'}</strong> — ${explanation}`;
+  document.getElementById('btnNext').classList.add('visible');
+  const skipBtn = document.getElementById('btnSkip');
+  if (skipBtn) skipBtn.classList.add('hidden');
+  updateStats();
 }
 
 function skipQuestion() {
-  if (answered) { nextQuestion(); return; }
-  const q = questions[currentIndex];
-  history.push({ q: q.q, userAns: '(παράλειψη)', correctAns: q.opts[q.correct], ok: false });
-  wrongCount++;
-  document.getElementById('wrongCount').textContent = wrongCount;
-  nextQuestion();
+  if (answered) return;
+  currentIndex++;
+  if (currentIndex >= TOTAL_PER_SESSION) {
+    showResults();
+  } else {
+    updateStats();
+    renderQuestion();
+  }
 }
 
 function nextQuestion() {
   currentIndex++;
-  if (currentIndex >= TOTAL_Q) {
+  if (currentIndex >= TOTAL_PER_SESSION) {
     showResults();
   } else {
-    loadQuestion();
+    updateStats();
+    renderQuestion();
   }
 }
 
 function showResults() {
-  document.getElementById('quizScreen').style.display = 'none';
-  const rs = document.getElementById('resultScreen');
-  rs.style.display = 'block';
-  document.getElementById('progressFill').style.width = '100%';
+  document.getElementById('quizArea').classList.add('hidden');
+  document.getElementById('progressBar').style.width = '100%';
+  
+  const pct = Math.round((correctCount / TOTAL_PER_SESSION) * 100);
+  let msg = pct >= 80 ? '🏆 Εξαιρετικό!' : pct >= 60 ? '👍 Καλή δουλειά!' : '📚 Συνέχισε την εξάσκηση!';
 
-  const pct = Math.round((correctCount / TOTAL_Q) * 100);
-  document.getElementById('finalScore').textContent = `${correctCount} / ${TOTAL_Q}`;
-  document.getElementById('finalDesc').textContent = `Απαντήσατε σωστά στο ${pct}% των ερωτήσεων.`;
-
-  const grade = document.getElementById('gradeLabel');
-  if (pct >= 90) { grade.className = 'grade excellent'; grade.textContent = '🌟 Άριστα!'; }
-  else if (pct >= 70) { grade.className = 'grade good'; grade.textContent = '👍 Πολύ καλά!'; }
-  else if (pct >= 50) { grade.className = 'grade average'; grade.textContent = '📚 Χρειάζεται βελτίωση'; }
-  else { grade.className = 'grade poor'; grade.textContent = '⚠️ Συνεχίστε την μελέτη'; }
+  const area = document.getElementById('finishArea');
+  area.classList.remove('hidden');
+  area.innerHTML = `
+    <div class="score-big">${pct}%</div>
+    <div class="score-label">ποσοστό επιτυχίας</div>
+    <h2>${msg}</h2>
+    <div class="finish-stats">
+      <div class="finish-stat">
+        <div class="n" style="color:var(--green)">${correctCount}</div>
+        <div class="l">Σωστές</div>
+      </div>
+      <div class="finish-stat">
+        <div class="n" style="color:var(--red)">${wrongCount}</div>
+        <div class="l">Λάθος</div>
+      </div>
+      <div class="finish-stat">
+        <div class="n">${TOTAL_PER_SESSION}</div>
+        <div class="l">Σύνολο</div>
+      </div>
+    </div>
+    <button class="btn-restart" onclick="startSession()">🔄 Νέο Quiz</button>
+  `;
 }
 
-function showDetails() {
-  const dt = document.getElementById('detailsTable');
-  if (dt.style.display !== 'none') { dt.style.display = 'none'; return; }
-  let html = `<table class="results-table"><thead><tr><th>#</th><th>Ερώτηση</th><th>Απάντησή σας</th><th>Σωστή απάντηση</th><th>Αποτέλεσμα</th></tr></thead><tbody>`;
-  history.forEach((h, i) => {
-    const icon = h.ok ? '✅' : '❌';
-    const row_style = h.ok ? '' : 'background:#fff5f5';
-    html += `<tr style="${row_style}"><td>${i+1}</td><td style="max-width:250px">${h.q}</td><td>${h.userAns}</td><td style="color:#2e7d32;font-weight:600">${h.correctAns}</td><td style="text-align:center">${icon}</td></tr>`;
-  });
-  html += '</tbody></table>';
-  dt.innerHTML = html;
-  dt.style.display = 'block';
-}
-
-function restartQuiz() {
-  document.getElementById('detailsTable').style.display = 'none';
-  startQuiz();
-}
-
-// Start on load
-startQuiz();
+// Start!
+startSession();
 </script>
 </body>
 </html>
