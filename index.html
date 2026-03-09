@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="el">
 <head>
 <meta charset="UTF-8">
@@ -418,6 +418,126 @@
     .q-text { font-size: 15px; }
     .option { font-size: 14px; }
   }
+
+  /* ===== FILL IN THE BLANK (DRAG & DROP) ===== */
+  .fill-text {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 2.4;
+    margin-bottom: 20px;
+    color: var(--text);
+  }
+
+  .fill-blank {
+    display: inline-block;
+    min-width: 110px;
+    min-height: 28px;
+    border-bottom: 2.5px dashed var(--accent);
+    border-radius: 6px;
+    padding: 2px 10px;
+    margin: 0 3px;
+    background: rgba(245,197,66,0.07);
+    vertical-align: middle;
+    text-align: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    transition: all 0.2s;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .fill-blank.drag-over {
+    border-color: var(--accent2);
+    background: rgba(255,107,53,0.15);
+    transform: scale(1.05);
+  }
+
+  .fill-blank.filled {
+    border-style: solid;
+    border-color: var(--muted);
+    background: rgba(255,255,255,0.06);
+    color: var(--text);
+  }
+
+  .fill-blank.correct-blank {
+    border-color: var(--green) !important;
+    background: rgba(74,222,128,0.12) !important;
+    color: var(--green) !important;
+    border-style: solid !important;
+  }
+
+  .fill-blank.wrong-blank {
+    border-color: var(--red) !important;
+    background: rgba(248,113,113,0.12) !important;
+    color: var(--red) !important;
+    border-style: solid !important;
+  }
+
+  .fill-blank .blank-num {
+    font-size: 9px;
+    color: var(--muted);
+    margin-right: 3px;
+  }
+
+  .word-bank-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .word-bank {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 16px 0 8px;
+    padding: 14px;
+    border: 1.5px dashed #333;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.02);
+  }
+
+  .word-chip {
+    background: var(--card);
+    border: 1.5px solid var(--accent);
+    border-radius: 8px;
+    padding: 7px 14px;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--accent);
+    cursor: grab;
+    transition: all 0.15s;
+    user-select: none;
+  }
+
+  .word-chip:hover { background: rgba(245,197,66,0.1); transform: translateY(-2px); }
+  .word-chip.dragging { opacity: 0.35; cursor: grabbing; }
+  .word-chip.used { opacity: 0.25; pointer-events: none; border-style: dashed; color: var(--muted); border-color: var(--muted); }
+
+  .fill-submit {
+    margin-top: 14px;
+    padding: 14px 28px;
+    background: var(--accent);
+    color: #0d0d0d;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    width: 100%;
+  }
+
+  .fill-submit:hover { background: #e0b330; transform: translateY(-1px); }
+  .fill-submit:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 </style>
 </head>
 <body>
@@ -1344,7 +1464,15 @@ questions.push(
   answer: 1,
   explanation: "Το δίκτυο λειτουργεί στα 50 Hz."
 },
- 
+
+{
+  questionNumber: "6",
+  type: "fill",
+  text: "Η επαγγελματική (1) ______ του (2) ______ καθορίζεται από την επαγγελματική (3) ______ και δηλώνει ότι είναι (4) ______ στα πλαίσια της (5) ______ του δραστηριότητας. Η επαγγελματική (6) ______ αποτελεί ένα κώδικα (7) ______, που λειτουργεί πρωτίστως με τους κανόνες της (8) ______ και μετέπειτα του (9) ______.",
+  answer: ["ευθύνη", "ηλεκτρολόγου", "δεοντολογίας", "υπόλογος", "επαγγελματικής", "ευθύνη", "συμπεριφοράς", "ηθικής", "κέρδους"],
+  explanation: "Σωστές λέξεις: ευθύνη, ηλεκτρολόγου, δεοντολογίας, υπόλογος, επαγγελματικής, ευθύνη, συμπεριφοράς, ηθικής, κέρδους."
+},
+
 );
 
  
@@ -1357,6 +1485,10 @@ let currentIndex = 0;
 let correctCount = 0;
 let wrongCount = 0;
 let answered = false;
+let fillAnswers = {};
+let selectedChipId = null;
+let draggedWord = '';
+let draggedChipId = '';
 
 function shuffle(arr) {
   const a = [...arr];
@@ -1390,18 +1522,21 @@ function updateStats() {
 
 function renderQuestion() {
   answered = false;
+  fillAnswers = {};
+  selectedChipId = null;
   const q = sessionQuestions[currentIndex];
   const area = document.getElementById('quizArea');
   let html = `<div class="q-number">Ερώτηση ${currentIndex + 1} / ${TOTAL_PER_SESSION}</div>`;
   html += `<div class="q-questionNumber">${q.questionNumber}</div>`;
-  html += `<div class="q-text">${q.text}</div>`;
 
   if (q.type === 'tf') {
+    html += `<div class="q-text">${q.text}</div>`;
     html += `<div class="true-false-btns">
       <button class="tf-btn true-btn" onclick="answerTF(true)">✓ ΣΩΣΤΟ</button>
       <button class="tf-btn false-btn" onclick="answerTF(false)">✗ ΛΑΘΟΣ</button>
     </div>`;
   } else if (q.type === 'mc') {
+    html += `<div class="q-text">${q.text}</div>`;
     const labels = ['α', 'β', 'γ', 'δ', 'ε', 'στ'];
     html += `<div class="options">`;
     q.options.forEach((opt, i) => {
@@ -1411,6 +1546,34 @@ function renderQuestion() {
       </button>`;
     });
     html += `</div>`;
+  } else if (q.type === 'fill') {
+    // Build sentence with blank slots replacing (N) ______
+    let fillHtml = q.text.replace(/\((\d+)\)\s*_{2,}/g, (match, num) => {
+      const idx = parseInt(num) - 1;
+      return `<span class="fill-blank" id="blank-${idx}" 
+        data-index="${idx}"
+        ondragover="event.preventDefault(); this.classList.add('drag-over')"
+        ondragleave="this.classList.remove('drag-over')"
+        ondrop="dropWord(event, ${idx})"
+        onclick="clearBlank(${idx})"
+        title="Κάνε drop λέξη εδώ ή κλίκ για να αφαιρέσεις">
+        <span class="blank-num">(${num})</span><span class="blank-val"></span>
+      </span>`;
+    });
+    html += `<div class="fill-text">${fillHtml}</div>`;
+    
+    // Word bank - shuffle the answers
+    const shuffled = [...q.answer].sort(() => Math.random() - 0.5);
+    html += `<span class="word-bank-label">📦 Λέξεις — σύρε στα κενά (ή κάνε κλίκ):</span>`;
+    html += `<div class="word-bank" id="wordBank">`;
+    shuffled.forEach((word, i) => {
+      html += `<div class="word-chip" id="chip-${i}" draggable="true"
+        ondragstart="dragStart(event, '${word}', 'chip-${i}')"
+        ondragend="this.classList.remove('dragging')"
+        onclick="clickWord('${word}', 'chip-${i}')">${word}</div>`;
+    });
+    html += `</div>`;
+    html += `<button class="fill-submit" id="fillSubmit" onclick="answerFill()" disabled>✓ Έλεγχος απαντήσεων</button>`;
   }
 
   html += `<div class="feedback" id="feedback"></div>`;
@@ -1426,7 +1589,7 @@ function answerTF(val) {
   if (answered) return;
   answered = true;
   const q = sessionQuestions[currentIndex];
-  const correct = val === q.answer;
+  const correct = (val === true && q.answer === "Σ") || (val === false && q.answer === "Λ");
   if (correct) correctCount++; else wrongCount++;
   
   const btns = document.querySelectorAll('.tf-btn');
@@ -1520,6 +1683,129 @@ function showResults() {
     </div>
     <button class="btn-restart" onclick="startSession()">🔄 Νέο Quiz</button>
   `;
+}
+
+// ===== FILL IN THE BLANK LOGIC =====
+
+function dragStart(event, word, chipId) {
+  draggedWord = word;
+  draggedChipId = chipId;
+  event.dataTransfer.setData('text/plain', word);
+  setTimeout(() => document.getElementById(chipId)?.classList.add('dragging'), 10);
+}
+
+function dropWord(event, blankIdx) {
+  event.preventDefault();
+  const blank = document.getElementById('blank-' + blankIdx);
+  if (!blank) return;
+  blank.classList.remove('drag-over');
+
+  // If blank already has a word, return it to bank
+  if (fillAnswers[blankIdx]) {
+    const oldChip = document.getElementById(fillAnswers[blankIdx].chipId);
+    if (oldChip) oldChip.classList.remove('used');
+  }
+
+  fillAnswers[blankIdx] = { word: draggedWord, chipId: draggedChipId };
+  blank.querySelector('.blank-val').textContent = draggedWord;
+  blank.classList.add('filled');
+
+  const chip = document.getElementById(draggedChipId);
+  if (chip) chip.classList.add('used');
+
+  checkFillReady();
+  selectedChipId = null;
+}
+
+function clearBlank(blankIdx) {
+  if (answered) return;
+  if (!fillAnswers[blankIdx]) return;
+  const chip = document.getElementById(fillAnswers[blankIdx].chipId);
+  if (chip) chip.classList.remove('used');
+  delete fillAnswers[blankIdx];
+  const blank = document.getElementById('blank-' + blankIdx);
+  blank.querySelector('.blank-val').textContent = '';
+  blank.classList.remove('filled');
+  checkFillReady();
+}
+
+function clickWord(word, chipId) {
+  if (answered) return;
+  // If already selected, deselect
+  if (selectedChipId === chipId) {
+    selectedChipId = null;
+    document.querySelectorAll('.word-chip').forEach(c => c.style.outline = '');
+    return;
+  }
+  selectedChipId = chipId;
+  draggedWord = word;
+  draggedChipId = chipId;
+  document.querySelectorAll('.word-chip').forEach(c => c.style.outline = '');
+  const chip = document.getElementById(chipId);
+  if (chip) chip.style.outline = '2px solid var(--accent2)';
+}
+
+// Allow clicking a blank to place selected word
+document.addEventListener('click', function(e) {
+  const blank = e.target.closest('.fill-blank');
+  if (blank && selectedChipId && !answered) {
+    const idx = parseInt(blank.dataset.index);
+    // simulate drop
+    if (fillAnswers[idx]) {
+      const oldChip = document.getElementById(fillAnswers[idx].chipId);
+      if (oldChip) oldChip.classList.remove('used');
+    }
+    fillAnswers[idx] = { word: draggedWord, chipId: selectedChipId };
+    blank.querySelector('.blank-val').textContent = draggedWord;
+    blank.classList.add('filled');
+    const chip = document.getElementById(selectedChipId);
+    if (chip) { chip.classList.add('used'); chip.style.outline = ''; }
+    selectedChipId = null;
+    draggedWord = '';
+    draggedChipId = '';
+    checkFillReady();
+  }
+});
+
+function checkFillReady() {
+  const q = sessionQuestions[currentIndex];
+  const allFilled = Object.keys(fillAnswers).length === q.answer.length;
+  const btn = document.getElementById('fillSubmit');
+  if (btn) btn.disabled = !allFilled;
+}
+
+function answerFill() {
+  if (answered) return;
+  answered = true;
+  const q = sessionQuestions[currentIndex];
+  let allCorrect = true;
+  let correctNum = 0;
+
+  q.answer.forEach((correctWord, idx) => {
+    const blank = document.getElementById('blank-' + idx);
+    if (!blank) return;
+    const placed = fillAnswers[idx]?.word || '';
+    const isRight = placed.toLowerCase().trim() === correctWord.toLowerCase().trim();
+    if (isRight) { correctNum++; blank.classList.add('correct-blank'); }
+    else {
+      allCorrect = false;
+      blank.classList.add('wrong-blank');
+      // Show correct answer below
+      blank.title = '✓ ' + correctWord;
+    }
+    blank.onclick = null;
+  });
+
+  // Disable word bank
+  document.querySelectorAll('.word-chip').forEach(c => { c.draggable = false; c.onclick = null; c.style.outline = ''; });
+  document.getElementById('fillSubmit').disabled = true;
+
+  const pct = Math.round((correctNum / q.answer.length) * 100);
+  const isFullCorrect = correctNum === q.answer.length;
+  if (isFullCorrect) correctCount++; else wrongCount++;
+
+  showFeedback(isFullCorrect, `${correctNum}/${q.answer.length} σωστά (${pct}%). ${q.explanation}`);
+  fillAnswers = {};
 }
 
 // Start!
